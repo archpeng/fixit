@@ -1,0 +1,13 @@
+{
+  "review_gap_count": 1,
+  "reviewed_hard_case_count": 1,
+  "semantic_failure_count": 0,
+  "high_rank_rule_missed_count": 2,
+  "send_to_human_review_count": 1,
+  "dominant_gap": "review_gap",
+  "small_model_worthy_today": false,
+  "notes": [
+    "Current severe misses are zero; remaining hard cases are mostly review-gap and fallback driven.",
+    "High-novelty rule-missed packets still reach high priority through the current baseline plus teacher/fallback flow."
+  ]
+}

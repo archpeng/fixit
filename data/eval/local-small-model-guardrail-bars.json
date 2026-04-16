@@ -1,0 +1,14 @@
+{
+  "success_bar": {
+    "offline_recall_floor": 1.0,
+    "top_k_precision_floor": 1.0,
+    "teacher_escalation_ceiling": 0.15,
+    "note": "Implementation family may only proceed if it can beat or match the current bounded replay baseline without widening fallback load."
+  },
+  "rollback_bar": {
+    "recall_drop_trigger": 1.0,
+    "precision_drop_trigger": 0.95,
+    "fallback_rate_ceiling": 0.5,
+    "latency_budget_defined": false
+  }
+}

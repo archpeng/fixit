@@ -1,13 +1,23 @@
 # fixit Plan Packs
 
-## Active Family
+## No Active Family
+
+当前 `docs/plan/` 中的三个 family 都已 closeout。
+
+## Closed Current Family
 
 - `LOCAL_SMALL_MODEL_STUDENT_UPGRADE_REVIEW`
   - `docs/plan/LOCAL_SMALL_MODEL_STUDENT_UPGRADE_REVIEW_PLAN.md`
   - `docs/plan/LOCAL_SMALL_MODEL_STUDENT_UPGRADE_REVIEW_STATUS.md`
   - `docs/plan/LOCAL_SMALL_MODEL_STUDENT_UPGRADE_REVIEW_WORKSET.md`
+  - `docs/plan/LOCAL_SMALL_MODEL_STUDENT_UPGRADE_REVIEW_READINESS_RUBRIC.md`
+  - `docs/plan/LOCAL_SMALL_MODEL_STUDENT_UPGRADE_REVIEW_EVIDENCE_AUDIT.md`
+  - `docs/plan/LOCAL_SMALL_MODEL_STUDENT_UPGRADE_REVIEW_MODEL_OPTION_MATRIX.md`
+  - `docs/plan/LOCAL_SMALL_MODEL_STUDENT_UPGRADE_REVIEW_DEPLOYMENT_REVIEW.md`
+  - `docs/plan/LOCAL_SMALL_MODEL_STUDENT_UPGRADE_REVIEW_CLOSEOUT_REVIEW.md`
+  - `docs/plan/LOCAL_SMALL_MODEL_STUDENT_UPGRADE_REVIEW_SUCCESSOR_ADMISSION.md`
 
-## Closed Current Family
+## Closed Previous Family
 
 - `ALERT_INTELLIGENCE_MVP_SHADOW_HARDENING`
   - `docs/plan/ALERT_INTELLIGENCE_MVP_SHADOW_HARDENING_PLAN.md`
@@ -28,11 +38,11 @@
 
 ## Purpose
 
-当前 `docs/plan/` 承载三段连续目标：
+当前 `docs/plan/` 承载三段已经完成的连续目标：
 
 - predecessor `foundation`：证明 MVP shadow foundation 能跑通并已完成 closeout。
 - closed `hardening`：把 foundation 的 replay / retrieval / calibration / teacher / enrichment 残口压成新的 bounded successor，并已完成 closeout。
-- active `small-model-upgrade-review`：对“是否进入本地小模型 student 实施”做 readiness review，而不是直接实施。
+- closed `small-model-upgrade-review`：对“是否进入本地小模型 student 实施”完成 readiness review，并给出 `not-yet` verdict。
 
 ## Read Order
 
@@ -42,6 +52,6 @@
 
 ## Control Rule
 
-- 当前 active family 默认 handoff 给 `execute-plan`。
+- 当前没有 active family。
 - closed families 不得继续续写。
-- 若当前 review family 的下一刀不清晰、verification ladder 变化、或 successor scope 需要重拆，回到 `plan-creator`。
+- 若继续下一阶段，默认先回 `plan-creator`，为 `ALERT_INTELLIGENCE_DATA_AND_TEACHER_ACCUMULATION` 建新 pack。

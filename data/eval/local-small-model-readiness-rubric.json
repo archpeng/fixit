@@ -1,0 +1,39 @@
+{
+  "criteria": [
+    {
+      "criterion_id": "schema_stability_2_to_4_weeks",
+      "question": "Has the packet/schema surface remained stable long enough to justify a local model implementation cycle?",
+      "go_bar": "schema stability >= 14 days and no active schema churn family"
+    },
+    {
+      "criterion_id": "teacher_judgement_volume_sufficient",
+      "question": "Is there enough reviewed teacher/human judgement volume to support distillation or tuning?",
+      "go_bar": "reviewed teacher cases >= 10 and fallback ratio <= 0.2 on the bounded review lane"
+    },
+    {
+      "criterion_id": "baseline_recall_ceiling_clear",
+      "question": "Do replay/calibration artifacts show where the current baseline plateaus?",
+      "go_bar": "expanded replay coverage, calibration artifact, and clear remaining recall/precision pain"
+    },
+    {
+      "criterion_id": "hard_cases_are_small_model_worthy",
+      "question": "Are the remaining hard cases primarily semantic understanding problems rather than review/data gaps?",
+      "go_bar": "semantic-failure count exceeds review-gap count and affects important severe cases"
+    },
+    {
+      "criterion_id": "local_budget_latency_and_rollback_ready",
+      "question": "Are budget, latency, deployment, and rollback constraints explicit enough for implementation?",
+      "go_bar": "budget defined, latency bar defined, rollback path defined, offline/online success bar frozen"
+    }
+  ],
+  "verdict_standards": {
+    "go": "All criteria met, or only non-blocking partial items remain.",
+    "not-yet": "Direction still looks plausible, but one or more blocking readiness criteria remain unmet.",
+    "no-go": "Current evidence suggests small-model implementation is not the right next move or ROI is not justified."
+  },
+  "non_goals": [
+    "training a local small model in this family",
+    "replacing the baseline student during review",
+    "production auto-action enablement"
+  ]
+}

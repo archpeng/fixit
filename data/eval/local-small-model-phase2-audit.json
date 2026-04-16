@@ -1,0 +1,34 @@
+{
+  "criteria": [
+    {
+      "criterion_id": "schema_stability_2_to_4_weeks",
+      "status": "unmet",
+      "rationale": "schema stability days=0 < 14"
+    },
+    {
+      "criterion_id": "teacher_judgement_volume_sufficient",
+      "status": "unmet",
+      "rationale": "reviewed=1 fallback=1 selected=2"
+    },
+    {
+      "criterion_id": "baseline_recall_ceiling_clear",
+      "status": "partial",
+      "rationale": "expanded replay and calibration exist, but evidence remains single-pilot"
+    },
+    {
+      "criterion_id": "hard_cases_are_small_model_worthy",
+      "status": "unmet",
+      "rationale": "dominant_gap=review_gap semantic_failure_count=0"
+    },
+    {
+      "criterion_id": "local_budget_latency_and_rollback_ready",
+      "status": "unmet",
+      "rationale": "local model budget not frozen; latency budget not frozen; rollback plan not frozen"
+    }
+  ],
+  "summary": {
+    "met": 0,
+    "partial": 1,
+    "unmet": 4
+  }
+}

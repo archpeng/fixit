@@ -1,6 +1,6 @@
 # LOCAL_SMALL_MODEL_STUDENT_UPGRADE_REVIEW_PLAN
 
-- Status: active
+- Status: completed
 - Family: `LOCAL_SMALL_MODEL_STUDENT_UPGRADE_REVIEW`
 - Created: 2026-04-16
 - Plan type: repo-global successor review pack
@@ -86,6 +86,7 @@
    - 或 `ALERT_INTELLIGENCE_DATA_AND_TEACHER_ACCUMULATION`
    - 或 `KEEP_BASELINE_STUDENT_AND_CONTINUE_HARDENING`
 8. `PLAN/STATUS/WORKSET` 已写回 closeout verdict 与 successor recommendation
+9. `docs/plan/LOCAL_SMALL_MODEL_STUDENT_UPGRADE_REVIEW_CLOSEOUT_REVIEW.md` 已固定本 family 的 review evidence 与 residuals
 
 ---
 

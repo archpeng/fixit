@@ -1,0 +1,38 @@
+{
+  "reference_date": "2026-04-16",
+  "schema_stability_days": 0,
+  "pilot_service_count": 1,
+  "replay_dataset_count": 9,
+  "replay_generated_at": "2026-04-16T12:15:00Z",
+  "teacher_reviewed_count": 1,
+  "teacher_fallback_count": 1,
+  "teacher_selected_count": 2,
+  "outcome_total": 8,
+  "outcome_severe_total": 4,
+  "label_sources": {
+    "human_outcome": 4,
+    "production_outcome": 3,
+    "teacher_rubric": 1,
+    "rule": 2
+  },
+  "calibration_bucket_count": 4,
+  "threshold_review_action": "keep",
+  "severe_recall": 1.0,
+  "top_k_precision": 1.0,
+  "teacher_escalation_rate": 0.1429,
+  "missed_severe_count": 0,
+  "control_plane_live_ok": true,
+  "control_plane_service_entry_found": false,
+  "control_plane_fallback_expected": true,
+  "local_budget_defined": false,
+  "latency_budget_defined": false,
+  "rollback_plan_defined": false,
+  "evidence_paths": [
+    "data/samples/replay-pack-manifest.json",
+    "data/eval/label-ledger.json",
+    "data/eval/calibration-report.json",
+    "data/eval/teacher-queue-summary.json",
+    "data/eval/control-plane-live-readback.json",
+    "data/eval/metrics-summary.json"
+  ]
+}

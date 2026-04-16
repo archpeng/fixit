@@ -1,0 +1,11 @@
+{
+  "budget_defined": false,
+  "latency_budget_defined": false,
+  "rollback_plan_defined": false,
+  "deployment_readiness": "not_ready",
+  "blocking_reasons": [
+    "local model budget not frozen",
+    "latency budget not frozen",
+    "rollback plan not frozen"
+  ]
+}

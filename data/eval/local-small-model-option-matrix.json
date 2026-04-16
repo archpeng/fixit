@@ -1,0 +1,23 @@
+{
+  "options": [
+    {
+      "option_id": "keep_classic_baseline",
+      "fit": "Current baseline already achieves severe_recall=1.0 on the bounded pilot and remaining hard cases are dominated by review/data gaps.",
+      "operational_risk": "low",
+      "recommendation": "preferred_now"
+    },
+    {
+      "option_id": "small_encoder_classifier",
+      "fit": "Future candidate if replay coverage and reviewed teacher volume materially increase.",
+      "operational_risk": "medium",
+      "recommendation": "future_candidate"
+    },
+    {
+      "option_id": "small_instruct_reranker",
+      "fit": "Would add deployment and latency complexity before the repo has enough evidence that semantic failures dominate.",
+      "operational_risk": "high",
+      "recommendation": "defer"
+    }
+  ],
+  "preferred_current_path": "keep_baseline_and_accumulate_data"
+}
