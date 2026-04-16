@@ -1,0 +1,122 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "incident-packet.v1",
+  "type": "object",
+  "required": [
+    "packet_id",
+    "ts_start",
+    "ts_end",
+    "env",
+    "service",
+    "operation",
+    "metrics",
+    "logs",
+    "traces",
+    "topology",
+    "rules",
+    "memory"
+  ],
+  "properties": {
+    "packet_id": {"type": "string"},
+    "ts_start": {"type": "string"},
+    "ts_end": {"type": "string"},
+    "env": {"type": "string"},
+    "service": {"type": "string"},
+    "operation": {"type": ["string", "null"]},
+    "metrics": {
+      "type": "object",
+      "required": ["error_rate", "error_rate_delta", "p95_delta", "qps_delta"],
+      "properties": {
+        "error_rate": {"type": "number"},
+        "error_rate_delta": {"type": "number"},
+        "p95_delta": {"type": "number"},
+        "qps_delta": {"type": "number"},
+        "p99_delta": {"type": "number"},
+        "alert_firing_duration_s": {"type": "number"},
+        "current_calls": {"type": "number"},
+        "current_errors": {"type": "number"}
+      },
+      "additionalProperties": true
+    },
+    "logs": {
+      "type": "object",
+      "required": ["top_templates", "severity_mix"],
+      "properties": {
+        "top_templates": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["template", "count", "novelty"],
+            "properties": {
+              "template": {"type": "string"},
+              "count": {"type": "number"},
+              "novelty": {"type": "number"},
+              "sample": {"type": ["string", "null"]}
+            },
+            "additionalProperties": true
+          }
+        },
+        "severity_mix": {"type": "object"}
+      },
+      "additionalProperties": true
+    },
+    "traces": {
+      "type": "object",
+      "required": ["top_error_operation", "error_span_ratio"],
+      "properties": {
+        "top_error_operation": {"type": ["string", "null"]},
+        "error_span_ratio": {"type": "number"},
+        "status_message": {"type": ["string", "null"]},
+        "sample_trace_ids": {
+          "type": "array",
+          "items": {"type": "string"}
+        }
+      },
+      "additionalProperties": true
+    },
+    "topology": {
+      "type": "object",
+      "required": ["tier", "owner", "repos", "blast_radius_score"],
+      "properties": {
+        "tier": {"type": ["string", "null"]},
+        "owner": {"type": ["string", "null"]},
+        "repos": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "blast_radius_score": {"type": "number"},
+        "upstream_count": {"type": "number"},
+        "downstream_count": {"type": "number"}
+      },
+      "additionalProperties": true
+    },
+    "rules": {
+      "type": "object",
+      "required": ["fired", "scores"],
+      "properties": {
+        "fired": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "scores": {"type": "object"}
+      },
+      "additionalProperties": true
+    },
+    "memory": {
+      "type": "object",
+      "required": ["similar_summaries"],
+      "properties": {
+        "similar_summaries": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "recent_incidents": {
+          "type": "array",
+          "items": {"type": "string"}
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

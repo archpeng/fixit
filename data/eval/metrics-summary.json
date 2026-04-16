@@ -1,0 +1,7 @@
+{
+  "severe_recall": 1.0,
+  "top_k_precision": 0.6667,
+  "teacher_escalation_rate": 0.25,
+  "missed_severe_count": 0,
+  "missed_severe_packets": []
+}

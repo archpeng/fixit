@@ -1,0 +1,122 @@
+{
+  "pilot_family": {
+    "name": "crm-campaign-compile",
+    "service": "g-crm-campaign",
+    "operation": "ADCService/Compile",
+    "replay_window": "24h",
+    "source_observation": {
+      "source": "signoz",
+      "observed_on": "2026-04-16",
+      "num_calls_24h": 405,
+      "error_count_24h": 48,
+      "top_operation": "ADCService/Compile",
+      "rationale": [
+        "single dominant operation keeps the pilot bounded",
+        "error volume is high enough to exercise severe recall",
+        "repeated rpc error signature makes packet and retrieval outputs easy to inspect"
+      ]
+    }
+  },
+  "metrics": {
+    "severe_recall": 1.0,
+    "top_k_precision": 0.6667,
+    "teacher_escalation_rate": 0.25,
+    "missed_severe_count": 0,
+    "missed_severe_packets": []
+  },
+  "top_severe_candidates": [
+    {
+      "packet_id": "ipk_w004",
+      "service": "g-crm-campaign",
+      "operation": "ADCService/Compile",
+      "final_priority": "P1",
+      "final_action": "page_owner",
+      "student_score": 0.9887,
+      "teacher_used": true
+    },
+    {
+      "packet_id": "ipk_w001",
+      "service": "g-crm-campaign",
+      "operation": "ADCService/Compile",
+      "final_priority": "P1",
+      "final_action": "page_owner",
+      "student_score": 0.9984,
+      "teacher_used": false
+    },
+    {
+      "packet_id": "ipk_w002",
+      "service": "g-crm-campaign",
+      "operation": "ADCService/Compile",
+      "final_priority": "P4",
+      "final_action": "observe",
+      "student_score": 0.2992,
+      "teacher_used": false
+    }
+  ],
+  "rule_missed_high_ranked": [
+    {
+      "packet_id": "ipk_w004",
+      "service": "g-crm-campaign",
+      "operation": "ADCService/Compile",
+      "final_priority": "P1",
+      "final_action": "page_owner",
+      "student_score": 0.9887,
+      "teacher_used": true
+    }
+  ],
+  "teacher_reviewed_hard_cases": [
+    {
+      "packet_id": "ipk_w004",
+      "severity": 4,
+      "customer_impact": 3,
+      "scope": 2,
+      "novelty": 4,
+      "urgency": 4,
+      "confidence": 0.74,
+      "recommended_action": "page_owner",
+      "evidence": [
+        "rule-missed window still shows 10x error-rate delta and elevated latency",
+        "novel compile error text is close to prior code=500 compile incidents",
+        "bounded pilot service has repeated compile failures in the same replay window"
+      ]
+    }
+  ],
+  "owner_repo_routing_hints": [
+    {
+      "packet_id": "ipk_w004",
+      "owner": "growth-campaign-oncall",
+      "repos": [
+        "g-crm-campaign",
+        "ad-compiler"
+      ],
+      "similar_incidents": [
+        "INC-1422",
+        "INC-1198"
+      ]
+    },
+    {
+      "packet_id": "ipk_w001",
+      "owner": "growth-campaign-oncall",
+      "repos": [
+        "g-crm-campaign",
+        "ad-compiler"
+      ],
+      "similar_incidents": [
+        "INC-1422",
+        "INC-1198"
+      ]
+    },
+    {
+      "packet_id": "ipk_w002",
+      "owner": "growth-campaign-oncall",
+      "repos": [
+        "g-crm-campaign",
+        "ad-compiler"
+      ],
+      "similar_incidents": [
+        "INC-1422",
+        "INC-1198"
+      ]
+    }
+  ]
+}

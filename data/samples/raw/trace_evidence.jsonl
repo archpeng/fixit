@@ -1,0 +1,4 @@
+{"window_id":"w001","top_error_operation":"ADCService/Compile","error_span_ratio":0.91,"status_message":"remote or network error: rpc error: code = 13 desc = biz error: code=500, msg=Internal server error","sample_trace_ids":["19498a1b6aac9a92716e8d6f87837287","e3b65c981c7e3c1f3ff733cd7303b3fd"]}
+{"window_id":"w002","top_error_operation":"ADCService/Compile","error_span_ratio":0.23,"status_message":"cache warmup latency exceeded soft limit","sample_trace_ids":["trace-soft-1"]}
+{"window_id":"w004","top_error_operation":"ADCService/Compile","error_span_ratio":0.74,"status_message":"retryable internal server error after template expansion","sample_trace_ids":["trace-hardcase-1","trace-hardcase-2"]}
+{"window_id":"w005","top_error_operation":"ADCService/Compile","error_span_ratio":0.17,"status_message":"temporary queue depth rise","sample_trace_ids":["trace-low-1"]}

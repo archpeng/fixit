@@ -1,0 +1,8 @@
+max_reviews_per_run: 2
+max_tokens_per_run: 4000
+fallback_action: send_to_human_review
+trigger_thresholds:
+  confidence_below: 0.35
+  novelty_at_or_above: 0.85
+  blast_radius_at_or_above: 0.80
+  severity_score_at_or_above: 0.65

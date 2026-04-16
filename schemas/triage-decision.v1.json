@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "triage-decision.v1",
+  "type": "object",
+  "required": [
+    "packet_id",
+    "student_score",
+    "student_confidence",
+    "novelty_score",
+    "rule_signals",
+    "retrieval_refs",
+    "teacher_used",
+    "final_action",
+    "final_priority",
+    "explanations"
+  ],
+  "properties": {
+    "packet_id": {"type": "string"},
+    "student_score": {"type": "number", "minimum": 0, "maximum": 1},
+    "student_confidence": {"type": "number", "minimum": 0, "maximum": 1},
+    "novelty_score": {"type": "number", "minimum": 0, "maximum": 1},
+    "rule_signals": {
+      "type": "array",
+      "items": {"type": "string"}
+    },
+    "retrieval_refs": {
+      "type": "array",
+      "items": {"type": "string"}
+    },
+    "teacher_used": {"type": "boolean"},
+    "final_action": {
+      "type": "string",
+      "enum": [
+        "suppress",
+        "observe",
+        "create_ticket",
+        "page_owner",
+        "page_owner_and_escalate",
+        "send_to_human_review"
+      ]
+    },
+    "final_priority": {
+      "type": "string",
+      "enum": ["P1", "P2", "P3", "P4"]
+    },
+    "explanations": {
+      "type": "array",
+      "items": {"type": "string"}
+    }
+  },
+  "additionalProperties": true
+}

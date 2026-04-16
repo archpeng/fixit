@@ -1,0 +1,12 @@
+{
+  "recommended_thresholds": {
+    "p1": 0.85,
+    "p2": 0.65,
+    "p3": 0.45
+  },
+  "observed_score_band": {
+    "max": 0.9984,
+    "min": 0.1502
+  },
+  "note": "Keep initial thresholds aligned with MVP docs until larger replay data justifies recalibration."
+}

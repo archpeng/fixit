@@ -1,0 +1,17 @@
+candidate_generation:
+  error_rate_delta: 0.05
+  p95_delta: 0.40
+  qps_delta: 0.15
+  saturation_delta: 0.20
+  multi_signal_min: 2
+student:
+  score_thresholds:
+    p1: 0.85
+    p2: 0.65
+    p3: 0.45
+  training:
+    epochs: 350
+    learning_rate: 0.35
+    l2: 0.001
+  evaluation:
+    top_k: 3

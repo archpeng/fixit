@@ -1,0 +1,21 @@
+{
+  "feature_names": [
+    "error_rate_delta",
+    "p95_delta",
+    "qps_delta",
+    "alert_count",
+    "rule_score_max",
+    "template_novelty_max",
+    "log_error_density",
+    "trace_error_ratio",
+    "blast_radius_score",
+    "similar_severe_score",
+    "recent_deploy"
+  ],
+  "label_source_weights": {
+    "human_outcome": 1.0,
+    "production_outcome": 0.9,
+    "teacher_rubric": 0.75,
+    "rule": 0.6
+  }
+}

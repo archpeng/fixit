@@ -1,0 +1,26 @@
+default_env: prod
+pilot_family:
+  name: crm-campaign-compile
+  service: g-crm-campaign
+  operation: ADCService/Compile
+  replay_window: 24h
+  source_observation:
+    source: signoz
+    observed_on: 2026-04-16
+    num_calls_24h: 405
+    error_count_24h: 48
+    top_operation: ADCService/Compile
+    rationale:
+      - single dominant operation keeps the pilot bounded
+      - error volume is high enough to exercise severe recall
+      - repeated rpc error signature makes packet and retrieval outputs easy to inspect
+service_overrides:
+  g-crm-campaign:
+    tier: tier2
+    owner: growth-campaign-oncall
+    repos:
+      - g-crm-campaign
+      - ad-compiler
+    blast_radius_score: 0.68
+    upstream_count: 2
+    downstream_count: 3
