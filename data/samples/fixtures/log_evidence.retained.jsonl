@@ -1,0 +1,4 @@
+{"window_id":"w006","top_templates":[{"template":"campaign compiler produced retryable internal server error during asset materialization","count":4,"novelty":0.93,"sample":"campaign compiler produced retryable internal server error during asset materialization"}],"severity_mix":{"ERROR":4,"WARN":0}}
+{"window_id":"w007","top_templates":[{"template":"compile queue recovered after brief error spike","count":1,"novelty":0.37,"sample":"compile queue recovered after brief error spike"}],"severity_mix":{"ERROR":1,"WARN":1}}
+{"window_id":"w008","top_templates":[{"template":"queue depth stable","count":1,"novelty":0.05,"sample":"queue depth stable"}],"severity_mix":{"INFO":1}}
+{"window_id":"w009","top_templates":[{"template":"rpc error: code = 13 desc = biz error: code=500, msg=Internal server error","count":5,"novelty":0.59,"sample":"remote or network error: rpc error: code = 13 desc = biz error: code=500, msg=Internal server error"}],"severity_mix":{"ERROR":5,"WARN":0}}

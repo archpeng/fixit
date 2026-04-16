@@ -25,6 +25,7 @@ def main() -> None:
     parser.add_argument("--retrieval", default=str(REPO_ROOT / "data/samples/retrieval-results.jsonl"))
     parser.add_argument("--scores", default=str(REPO_ROOT / "data/eval/student-scores.jsonl"))
     parser.add_argument("--teacher", default=str(REPO_ROOT / "data/eval/teacher-judgements.jsonl"))
+    parser.add_argument("--teacher-fallbacks", default=None)
     parser.add_argument("--outcomes", default=str(REPO_ROOT / "data/eval/outcomes.jsonl"))
     parser.add_argument("--thresholds", default=str(REPO_ROOT / "configs/thresholds.yaml"))
     parser.add_argument("--schemas", default=str(REPO_ROOT / "schemas"))
@@ -36,6 +37,7 @@ def main() -> None:
     retrieval_records = read_jsonl(args.retrieval)
     scores = read_jsonl(args.scores)
     teacher_reviews = read_jsonl(args.teacher)
+    teacher_fallbacks = read_jsonl(args.teacher_fallbacks) if args.teacher_fallbacks else []
     outcomes = read_jsonl(args.outcomes)
     thresholds = read_yaml(args.thresholds)
     schemas = SchemaBundle(args.schemas)
@@ -47,6 +49,7 @@ def main() -> None:
         teacher_reviews,
         thresholds,
         schemas,
+        teacher_fallbacks=teacher_fallbacks,
     )
     metrics = compute_eval_metrics(
         decisions,

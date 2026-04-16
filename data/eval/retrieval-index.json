@@ -1,0 +1,265 @@
+{
+  "docs": [
+    {
+      "incident": {
+        "incident_id": "inc-compile-500",
+        "service": "g-crm-campaign",
+        "operation": "ADCService/Compile",
+        "summary": "Repeated rpc code=500 Internal server error during campaign compile",
+        "severity": "severe",
+        "recommended_action": "page_owner",
+        "tags": [
+          "compile",
+          "rpc13",
+          "internal-server-error"
+        ]
+      },
+      "tokens": {
+        "g": 1,
+        "crm": 1,
+        "campaign": 2,
+        "adcservice": 1,
+        "compile": 3,
+        "repeated": 1,
+        "rpc": 1,
+        "code": 1,
+        "500": 1,
+        "internal": 2,
+        "server": 2,
+        "error": 2,
+        "during": 1,
+        "rpc13": 1
+      }
+    },
+    {
+      "incident": {
+        "incident_id": "inc-compile-warmup",
+        "service": "g-crm-campaign",
+        "operation": "ADCService/Compile",
+        "summary": "Latency spike during compile cache warmup without sustained errors",
+        "severity": "moderate",
+        "recommended_action": "create_ticket",
+        "tags": [
+          "compile",
+          "latency",
+          "warmup"
+        ]
+      },
+      "tokens": {
+        "g": 1,
+        "crm": 1,
+        "campaign": 1,
+        "adcservice": 1,
+        "compile": 3,
+        "latency": 2,
+        "spike": 1,
+        "during": 1,
+        "cache": 1,
+        "warmup": 2,
+        "without": 1,
+        "sustained": 1,
+        "errors": 1
+      }
+    },
+    {
+      "incident": {
+        "incident_id": "inc-queue-depth",
+        "service": "g-crm-campaign",
+        "operation": "ADCService/Compile",
+        "summary": "Temporary compiler queue depth increase resolved automatically",
+        "severity": "low",
+        "recommended_action": "observe",
+        "tags": [
+          "queue",
+          "depth",
+          "transient"
+        ]
+      },
+      "tokens": {
+        "g": 1,
+        "crm": 1,
+        "campaign": 1,
+        "adcservice": 1,
+        "compile": 1,
+        "temporary": 1,
+        "compiler": 1,
+        "queue": 2,
+        "depth": 2,
+        "increase": 1,
+        "resolved": 1,
+        "automatically": 1,
+        "transient": 1
+      }
+    },
+    {
+      "incident": {
+        "incident_id": "inc-other-service",
+        "service": "prod-hq-bff-service",
+        "operation": "POST /brand/detail",
+        "summary": "BFF transient timeout on upstream product detail call",
+        "severity": "moderate",
+        "recommended_action": "create_ticket",
+        "tags": [
+          "bff",
+          "timeout"
+        ]
+      },
+      "tokens": {
+        "prod": 1,
+        "hq": 1,
+        "bff": 3,
+        "service": 1,
+        "post": 1,
+        "brand": 1,
+        "detail": 2,
+        "transient": 1,
+        "timeout": 2,
+        "on": 1,
+        "upstream": 1,
+        "product": 1,
+        "call": 1
+      }
+    },
+    {
+      "incident": {
+        "incident_id": "inc-compile-materialization",
+        "service": "g-crm-campaign",
+        "operation": "ADCService/Compile",
+        "summary": "Retryable internal server error during campaign asset materialization",
+        "severity": "severe",
+        "recommended_action": "page_owner",
+        "tags": [
+          "compile",
+          "materialization",
+          "retryable"
+        ]
+      },
+      "tokens": {
+        "g": 1,
+        "crm": 1,
+        "campaign": 2,
+        "adcservice": 1,
+        "compile": 2,
+        "retryable": 2,
+        "internal": 1,
+        "server": 1,
+        "error": 1,
+        "during": 1,
+        "asset": 1,
+        "materialization": 2
+      }
+    },
+    {
+      "incident": {
+        "incident_id": "inc-compile-recovered-spike",
+        "service": "g-crm-campaign",
+        "operation": "ADCService/Compile",
+        "summary": "Short compile error spike recovered automatically",
+        "severity": "moderate",
+        "recommended_action": "create_ticket",
+        "tags": [
+          "compile",
+          "spike",
+          "recovered"
+        ]
+      },
+      "tokens": {
+        "g": 1,
+        "crm": 1,
+        "campaign": 1,
+        "adcservice": 1,
+        "compile": 3,
+        "short": 1,
+        "error": 1,
+        "spike": 2,
+        "recovered": 2,
+        "automatically": 1
+      }
+    },
+    {
+      "incident": {
+        "incident_id": "inc-compile-steady",
+        "service": "g-crm-campaign",
+        "operation": "ADCService/Compile",
+        "summary": "Compile queue remained healthy with no customer impact",
+        "severity": "low",
+        "recommended_action": "observe",
+        "tags": [
+          "compile",
+          "steady"
+        ]
+      },
+      "tokens": {
+        "g": 1,
+        "crm": 1,
+        "campaign": 1,
+        "adcservice": 1,
+        "compile": 3,
+        "queue": 1,
+        "remained": 1,
+        "healthy": 1,
+        "with": 1,
+        "no": 1,
+        "customer": 1,
+        "impact": 1,
+        "steady": 1
+      }
+    }
+  ],
+  "idf": {
+    "g": 1.1335313926245225,
+    "crm": 1.1335313926245225,
+    "campaign": 1.1335313926245225,
+    "adcservice": 1.1335313926245225,
+    "compile": 1.1335313926245225,
+    "repeated": 2.386294361119891,
+    "rpc": 2.386294361119891,
+    "code": 2.386294361119891,
+    "500": 2.386294361119891,
+    "internal": 1.9808292530117262,
+    "server": 1.9808292530117262,
+    "error": 1.6931471805599454,
+    "during": 1.6931471805599454,
+    "rpc13": 2.386294361119891,
+    "latency": 2.386294361119891,
+    "spike": 1.9808292530117262,
+    "cache": 2.386294361119891,
+    "warmup": 2.386294361119891,
+    "without": 2.386294361119891,
+    "sustained": 2.386294361119891,
+    "errors": 2.386294361119891,
+    "temporary": 2.386294361119891,
+    "compiler": 2.386294361119891,
+    "queue": 1.9808292530117262,
+    "depth": 2.386294361119891,
+    "increase": 2.386294361119891,
+    "resolved": 2.386294361119891,
+    "automatically": 1.9808292530117262,
+    "transient": 1.9808292530117262,
+    "prod": 2.386294361119891,
+    "hq": 2.386294361119891,
+    "bff": 2.386294361119891,
+    "service": 2.386294361119891,
+    "post": 2.386294361119891,
+    "brand": 2.386294361119891,
+    "detail": 2.386294361119891,
+    "timeout": 2.386294361119891,
+    "on": 2.386294361119891,
+    "upstream": 2.386294361119891,
+    "product": 2.386294361119891,
+    "call": 2.386294361119891,
+    "retryable": 2.386294361119891,
+    "asset": 2.386294361119891,
+    "materialization": 2.386294361119891,
+    "short": 2.386294361119891,
+    "recovered": 2.386294361119891,
+    "remained": 2.386294361119891,
+    "healthy": 2.386294361119891,
+    "with": 2.386294361119891,
+    "no": 2.386294361119891,
+    "customer": 2.386294361119891,
+    "impact": 2.386294361119891,
+    "steady": 2.386294361119891
+  },
+  "size": 7
+}

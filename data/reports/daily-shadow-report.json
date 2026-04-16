@@ -19,8 +19,8 @@
   },
   "metrics": {
     "severe_recall": 1.0,
-    "top_k_precision": 0.6667,
-    "teacher_escalation_rate": 0.25,
+    "top_k_precision": 1.0,
+    "teacher_escalation_rate": 0.1429,
     "missed_severe_count": 0,
     "missed_severe_packets": []
   },
@@ -31,7 +31,7 @@
       "operation": "ADCService/Compile",
       "final_priority": "P1",
       "final_action": "page_owner",
-      "student_score": 0.9887,
+      "student_score": 0.9926,
       "teacher_used": true
     },
     {
@@ -40,16 +40,16 @@
       "operation": "ADCService/Compile",
       "final_priority": "P1",
       "final_action": "page_owner",
-      "student_score": 0.9984,
+      "student_score": 0.9972,
       "teacher_used": false
     },
     {
-      "packet_id": "ipk_w002",
+      "packet_id": "ipk_w006",
       "service": "g-crm-campaign",
       "operation": "ADCService/Compile",
-      "final_priority": "P4",
-      "final_action": "observe",
-      "student_score": 0.2992,
+      "final_priority": "P1",
+      "final_action": "send_to_human_review",
+      "student_score": 0.9936,
       "teacher_used": false
     }
   ],
@@ -60,8 +60,17 @@
       "operation": "ADCService/Compile",
       "final_priority": "P1",
       "final_action": "page_owner",
-      "student_score": 0.9887,
+      "student_score": 0.9926,
       "teacher_used": true
+    },
+    {
+      "packet_id": "ipk_w006",
+      "service": "g-crm-campaign",
+      "operation": "ADCService/Compile",
+      "final_priority": "P1",
+      "final_action": "send_to_human_review",
+      "student_score": 0.9936,
+      "teacher_used": false
     }
   ],
   "teacher_reviewed_hard_cases": [
@@ -107,7 +116,7 @@
       ]
     },
     {
-      "packet_id": "ipk_w002",
+      "packet_id": "ipk_w006",
       "owner": "growth-campaign-oncall",
       "repos": [
         "g-crm-campaign",
@@ -118,5 +127,28 @@
         "INC-1198"
       ]
     }
-  ]
+  ],
+  "data_freshness": {
+    "generated_at": "2026-04-16T14:45:33Z",
+    "dataset_count": 9,
+    "derived_artifact_count": 17
+  },
+  "enrichment_usage": {
+    "total_count": 1,
+    "live_count": 0,
+    "fallback_count": 1,
+    "details": [
+      {
+        "service": "g-crm-campaign",
+        "source": "config_fallback",
+        "reason": "live record missing"
+      }
+    ]
+  },
+  "teacher_queue": {
+    "selected_count": 2,
+    "reviewed_count": 1,
+    "fallback_count": 1,
+    "pending_count": 0
+  }
 }

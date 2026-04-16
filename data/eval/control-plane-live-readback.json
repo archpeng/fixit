@@ -1,0 +1,10 @@
+{
+  "health_url": "http://127.0.0.1:3401/health",
+  "health_ok": true,
+  "health_body": "{\"ok\": true, \"service\": \"control-plane-mcp-http\", \"paths\": [\"/health\", \"/mcp\"]}",
+  "snapshot_path": "data/live/control_plane_service_context.jsonl",
+  "snapshot_available": false,
+  "service": "g-crm-campaign",
+  "service_entry_found": false,
+  "fallback_expected": true
+}

@@ -35,8 +35,10 @@ def build_triage_decisions(
     teacher_reviews: list[dict],
     thresholds: dict,
     schemas: SchemaBundle,
+    teacher_fallbacks: list[dict] | None = None,
 ) -> list[dict]:
     teacher_by_packet = {item["packet_id"]: item for item in teacher_reviews}
+    fallback_by_packet = {item["packet_id"]: item for item in (teacher_fallbacks or [])}
     packet_by_id = {packet["packet_id"]: packet for packet in packets}
 
     decisions: list[dict] = []
@@ -45,9 +47,13 @@ def build_triage_decisions(
         final_action, final_priority = _default_action_priority(score["student_score"], thresholds)
         decision_score = score["student_score"]
         teacher_used = False
+        explanations = list(score.get("explanations", []))
         if score["packet_id"] in teacher_by_packet:
             teacher_used = True
             final_action, final_priority, decision_score = _teacher_override(teacher_by_packet[score["packet_id"]])
+        elif score["packet_id"] in fallback_by_packet:
+            final_action = fallback_by_packet[score["packet_id"]]["fallback_action"]
+            explanations.append("teacher_fallback_applied")
 
         decision = {
             "packet_id": score["packet_id"],
@@ -59,7 +65,7 @@ def build_triage_decisions(
             "teacher_used": teacher_used,
             "final_action": final_action,
             "final_priority": final_priority,
-            "explanations": list(score.get("explanations", [])),
+            "explanations": explanations,
             "decision_score": round(decision_score, 4),
         }
         schemas.validate("triage-decision.v1.json", decision)
@@ -76,6 +82,9 @@ def build_shadow_report_data(
     outcomes: list[dict],
     services_cfg: dict,
     top_k: int,
+    replay_manifest: dict | None = None,
+    enrichment_usage_summary: dict | None = None,
+    teacher_queue_summary: dict | None = None,
 ) -> dict:
     packet_by_id = {packet["packet_id"]: packet for packet in packets}
     metrics = compute_eval_metrics(decisions, outcomes, top_k=top_k)
@@ -113,7 +122,7 @@ def build_shadow_report_data(
             }
         )
 
-    return {
+    report = {
         "pilot_family": services_cfg.get("pilot_family", {}),
         "metrics": metrics,
         "top_severe_candidates": top_candidates,
@@ -121,6 +130,17 @@ def build_shadow_report_data(
         "teacher_reviewed_hard_cases": teacher_reviews,
         "owner_repo_routing_hints": routing_hints,
     }
+    if replay_manifest is not None:
+        report["data_freshness"] = {
+            "generated_at": replay_manifest.get("generated_at"),
+            "dataset_count": len(replay_manifest.get("datasets", [])),
+            "derived_artifact_count": len(replay_manifest.get("derived_artifacts", [])),
+        }
+    if enrichment_usage_summary is not None:
+        report["enrichment_usage"] = enrichment_usage_summary
+    if teacher_queue_summary is not None:
+        report["teacher_queue"] = teacher_queue_summary
+    return report
 
 
 def render_shadow_report_markdown(report: dict) -> str:
@@ -143,7 +163,7 @@ def render_shadow_report_markdown(report: dict) -> str:
         lines.append(
             f"- `{item['packet_id']}` `{item['final_priority']}` `{item['final_action']}` score={item['student_score']} teacher={item['teacher_used']}"
         )
-    lines.extend(["", "## Rule-missed but model ranked high"]) 
+    lines.extend(["", "## Rule-missed but model ranked high"])
     if report["rule_missed_high_ranked"]:
         for item in report["rule_missed_high_ranked"]:
             lines.append(f"- `{item['packet_id']}` -> `{item['final_priority']}` `{item['final_action']}`")
@@ -162,5 +182,30 @@ def render_shadow_report_markdown(report: dict) -> str:
         repos = ", ".join(item["repos"])
         similar = ", ".join(item["similar_incidents"])
         lines.append(f"- `{item['packet_id']}` owner=`{item['owner']}` repos=[{repos}] similar=[{similar}]")
+
+    if "data_freshness" in report:
+        lines.extend([
+            "",
+            "## Data Freshness",
+            f"- replay generated at: `{report['data_freshness']['generated_at']}`",
+            f"- dataset count: `{report['data_freshness']['dataset_count']}`",
+            f"- derived artifact count: `{report['data_freshness']['derived_artifact_count']}`",
+        ])
+    if "enrichment_usage" in report:
+        lines.extend([
+            "",
+            "## Fallback Usage",
+            f"- live count: `{report['enrichment_usage']['live_count']}`",
+            f"- fallback count: `{report['enrichment_usage']['fallback_count']}`",
+        ])
+    if "teacher_queue" in report:
+        lines.extend([
+            "",
+            "## Teacher Queue",
+            f"- selected: `{report['teacher_queue']['selected_count']}`",
+            f"- reviewed: `{report['teacher_queue']['reviewed_count']}`",
+            f"- fallback: `{report['teacher_queue']['fallback_count']}`",
+            f"- pending: `{report['teacher_queue']['pending_count']}`",
+        ])
     lines.append("")
     return "\n".join(lines)

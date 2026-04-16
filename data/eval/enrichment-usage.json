@@ -1,0 +1,12 @@
+{
+  "total_count": 1,
+  "live_count": 0,
+  "fallback_count": 1,
+  "details": [
+    {
+      "service": "g-crm-campaign",
+      "source": "config_fallback",
+      "reason": "live record missing"
+    }
+  ]
+}

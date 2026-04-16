@@ -28,17 +28,14 @@ def build_teacher_payload(packet: dict, retrieval_refs: list[dict], score: dict,
     }
 
 
-def select_teacher_reviews(
+def _select_teacher_payloads(
     packets: Iterable[dict],
     retrieval_by_packet: dict[str, list[dict]],
     scores: list[dict],
     teacher_budget: dict,
-    seed_judgements: Iterable[dict] | None = None,
-) -> tuple[list[dict], list[dict]]:
+) -> list[dict]:
     packet_by_id = {packet["packet_id"]: packet for packet in packets}
-    judgement_by_id = {item["packet_id"]: item for item in (seed_judgements or [])}
     cfg = teacher_budget["trigger_thresholds"]
-
     selected_payloads: list[dict] = []
     for score in scores:
         packet = packet_by_id[score["packet_id"]]
@@ -59,6 +56,79 @@ def select_teacher_reviews(
         )
 
     selected_payloads.sort(key=_severity_rank, reverse=True)
-    selected_payloads = selected_payloads[: teacher_budget["max_reviews_per_run"]]
+    return selected_payloads[: teacher_budget["max_reviews_per_run"]]
+
+
+def select_teacher_reviews(
+    packets: Iterable[dict],
+    retrieval_by_packet: dict[str, list[dict]],
+    scores: list[dict],
+    teacher_budget: dict,
+    seed_judgements: Iterable[dict] | None = None,
+) -> tuple[list[dict], list[dict]]:
+    judgement_by_id = {item["packet_id"]: item for item in (seed_judgements or [])}
+    selected_payloads = _select_teacher_payloads(packets, retrieval_by_packet, scores, teacher_budget)
     judgements = [judgement_by_id[item["packet_id"]] for item in selected_payloads if item["packet_id"] in judgement_by_id]
     return judgements, selected_payloads
+
+
+def run_teacher_workflow(
+    packets: Iterable[dict],
+    retrieval_by_packet: dict[str, list[dict]],
+    scores: list[dict],
+    teacher_budget: dict,
+    seed_judgements: Iterable[dict] | None = None,
+) -> dict:
+    judgement_by_id = {item["packet_id"]: item for item in (seed_judgements or [])}
+    selected_payloads = _select_teacher_payloads(packets, retrieval_by_packet, scores, teacher_budget)
+
+    judgements: list[dict] = []
+    requests: list[dict] = []
+    reviews: list[dict] = []
+    fallbacks: list[dict] = []
+
+    for payload in selected_payloads:
+        packet_id = payload["packet_id"]
+        request = {
+            "packet_id": packet_id,
+            "service": payload["service"],
+            "operation": payload.get("operation"),
+            "triggers": payload.get("triggers", []),
+        }
+        if packet_id in judgement_by_id:
+            judgement = judgement_by_id[packet_id]
+            judgements.append(judgement)
+            reviews.append(
+                {
+                    "packet_id": packet_id,
+                    "review_state": "reviewed",
+                    "recommended_action": judgement["recommended_action"],
+                    "confidence": judgement["confidence"],
+                }
+            )
+            request["state"] = "reviewed"
+        else:
+            fallback = {
+                "packet_id": packet_id,
+                "fallback_action": teacher_budget["fallback_action"],
+                "reason": "teacher judgement unavailable for selected hard case",
+                "triggers": payload.get("triggers", []),
+            }
+            fallbacks.append(fallback)
+            request["state"] = "fallback"
+        requests.append(request)
+
+    summary = {
+        "selected_count": len(selected_payloads),
+        "reviewed_count": len(reviews),
+        "fallback_count": len(fallbacks),
+        "pending_count": 0,
+    }
+    return {
+        "judgements": judgements,
+        "payloads": selected_payloads,
+        "requests": requests,
+        "reviews": reviews,
+        "fallbacks": fallbacks,
+        "summary": summary,
+    }
