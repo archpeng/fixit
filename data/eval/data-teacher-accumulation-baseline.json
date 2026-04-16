@@ -1,0 +1,39 @@
+{
+  "reference_date": "2026-04-17",
+  "predecessor_family": "LOCAL_SMALL_MODEL_STUDENT_UPGRADE_REVIEW",
+  "predecessor_verdict": "not-yet",
+  "recommended_successor": "ALERT_INTELLIGENCE_DATA_AND_TEACHER_ACCUMULATION",
+  "predecessor_reason": "Current blockers are still dominated by replay breadth, teacher volume, and review-gap evidence rather than semantic model failure.",
+  "phase2_summary": {
+    "met": 0,
+    "partial": 1,
+    "unmet": 4
+  },
+  "pilot_service_count": 2,
+  "coverage_services": [
+    "g-crm-campaign",
+    "prod-hq-bff-service"
+  ],
+  "metrics_window_count": 12,
+  "replay_dataset_count": 9,
+  "replay_output_row_total": 64,
+  "teacher_request_count": 2,
+  "teacher_selected_count": 2,
+  "teacher_reviewed_count": 1,
+  "teacher_fallback_count": 1,
+  "teacher_fallback_ratio": 0.5,
+  "queue_summary_consistent": true,
+  "label_sources": {
+    "human_outcome": 4,
+    "production_outcome": 3,
+    "teacher_rubric": 1,
+    "rule": 2
+  },
+  "outcome_total": 8,
+  "outcome_severe_total": 4,
+  "calibration_bucket_count": 4,
+  "threshold_review_action": "keep",
+  "schema_stability_days": 0,
+  "severe_recall": 1.0,
+  "top_k_precision": 1.0
+}

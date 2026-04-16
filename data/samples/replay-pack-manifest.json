@@ -9,8 +9,8 @@
     {
       "name": "metrics_windows",
       "output": "data/samples/replay/metrics_windows.jsonl",
-      "output_row_count": 9,
-      "output_sha256": "4118039911810b7e4f87f53edcfa779b95205d223bef06bfb58136f8321c42be",
+      "output_row_count": 12,
+      "output_sha256": "d883a796e25180bd600996094a9af583404222eef9f728dce7731bf17035ec04",
       "sources": [
         {
           "path": "data/samples/raw/metrics_windows.jsonl",
@@ -22,17 +22,17 @@
         {
           "path": "data/samples/fixtures/metrics_windows.retained.jsonl",
           "class": "retained_fixture",
-          "row_count": 4,
-          "sha256": "4b3f662dbb0fa03a97c926e2ecaa6e8c6381cd8126de186cbf5109c0f5e2fa47",
-          "freshness": "2026-04-16T14:30:33.361455+00:00"
+          "row_count": 7,
+          "sha256": "035e91ece2c0c4c1646d834b1ddbe22bf8938967d0702ec71911605e8a8093bf",
+          "freshness": "2026-04-16T23:40:52.716971+00:00"
         }
       ]
     },
     {
       "name": "log_evidence",
       "output": "data/samples/replay/log_evidence.jsonl",
-      "output_row_count": 8,
-      "output_sha256": "4ce0aba88fa8ea0a3fd18ea77c11c8c4b911e0c710fd5ec6da01309f3692bb3b",
+      "output_row_count": 11,
+      "output_sha256": "db67764a54838a2974c83f1cb0d1135bc697f6d25deeace18b8965681edd41ba",
       "sources": [
         {
           "path": "data/samples/raw/log_evidence.jsonl",
@@ -44,17 +44,17 @@
         {
           "path": "data/samples/fixtures/log_evidence.retained.jsonl",
           "class": "retained_fixture",
-          "row_count": 4,
-          "sha256": "1583e9e7cbd590f3ddc8266fcbf48eee693af3d4efc6cf94f33cd6a02cc82e97",
-          "freshness": "2026-04-16T14:30:33.361455+00:00"
+          "row_count": 7,
+          "sha256": "cb42c5eb3299702604b5e6d060a361671f770fa500fa879b606f84a3d90d7ab5",
+          "freshness": "2026-04-16T23:41:04.883988+00:00"
         }
       ]
     },
     {
       "name": "trace_evidence",
       "output": "data/samples/replay/trace_evidence.jsonl",
-      "output_row_count": 8,
-      "output_sha256": "ca1789fc51c10388b105c6adb9768d58e13c2ae0bb8dec8b6d6e1e5ac581e700",
+      "output_row_count": 11,
+      "output_sha256": "970aa9b5b5deb8a78a725b9efb934838aabd263e7017c620048afad7df5074e1",
       "sources": [
         {
           "path": "data/samples/raw/trace_evidence.jsonl",
@@ -66,17 +66,17 @@
         {
           "path": "data/samples/fixtures/trace_evidence.retained.jsonl",
           "class": "retained_fixture",
-          "row_count": 4,
-          "sha256": "67f0560579805e84e2b4d5d39f290208304e215cf13f1e2229c07099f2507701",
-          "freshness": "2026-04-16T14:30:33.361455+00:00"
+          "row_count": 7,
+          "sha256": "77fdbbda18f6da87452f941262688edef5cda2157fa0922024eba4419e5c98a2",
+          "freshness": "2026-04-16T23:41:16.027004+00:00"
         }
       ]
     },
     {
       "name": "topology",
       "output": "data/samples/replay/topology.jsonl",
-      "output_row_count": 1,
-      "output_sha256": "98d68e9a293dc9d093a84d09fd09e70f180945996992695302bc0c03cd1f8719",
+      "output_row_count": 2,
+      "output_sha256": "9276ccf971873594d089b790f89340aedf38d95b20db5ac1e9f182fec4e800c6",
       "sources": [
         {
           "path": "data/samples/raw/topology.jsonl",
@@ -84,21 +84,28 @@
           "row_count": 1,
           "sha256": "98d68e9a293dc9d093a84d09fd09e70f180945996992695302bc0c03cd1f8719",
           "freshness": "2026-04-16T13:25:13.491598+00:00"
+        },
+        {
+          "path": "data/samples/fixtures/topology.retained.jsonl",
+          "class": "retained_fixture",
+          "row_count": 1,
+          "sha256": "43ddf29e0c6bb349cfebb376a295ca4cea6df8071d41f09bac64b2bf401f6d4e",
+          "freshness": "2026-04-16T23:40:31.829942+00:00"
         }
       ]
     },
     {
       "name": "memory_summaries",
       "output": "data/samples/replay/memory_summaries.jsonl",
-      "output_row_count": 1,
-      "output_sha256": "57dac48001fc9ff27bd48e8b3fa949a1d26884cb13ff5440c24acdd34a2338f7",
+      "output_row_count": 2,
+      "output_sha256": "7bf84c3af91d611d28adcc3229b05354fbd1b22bbf82980ada07c994e36f7ba4",
       "sources": [
         {
           "path": "data/samples/raw/memory_summaries.jsonl",
           "class": "retained_fixture",
-          "row_count": 1,
-          "sha256": "57dac48001fc9ff27bd48e8b3fa949a1d26884cb13ff5440c24acdd34a2338f7",
-          "freshness": "2026-04-16T13:25:13.491598+00:00"
+          "row_count": 2,
+          "sha256": "7bf84c3af91d611d28adcc3229b05354fbd1b22bbf82980ada07c994e36f7ba4",
+          "freshness": "2026-04-16T23:41:25.941018+00:00"
         }
       ]
     },

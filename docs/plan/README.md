@@ -2,9 +2,18 @@
 
 ## No Active Family
 
-当前 `docs/plan/` 中的三个 family 都已 closeout。
+当前 `docs/plan/` 中的四个 family 都已 closeout。
 
 ## Closed Current Family
+
+- `ALERT_INTELLIGENCE_DATA_AND_TEACHER_ACCUMULATION`
+  - `docs/plan/ALERT_INTELLIGENCE_DATA_AND_TEACHER_ACCUMULATION_PLAN.md`
+  - `docs/plan/ALERT_INTELLIGENCE_DATA_AND_TEACHER_ACCUMULATION_STATUS.md`
+  - `docs/plan/ALERT_INTELLIGENCE_DATA_AND_TEACHER_ACCUMULATION_WORKSET.md`
+  - `docs/plan/ALERT_INTELLIGENCE_DATA_AND_TEACHER_ACCUMULATION_CLOSEOUT_REVIEW.md`
+  - `docs/plan/ALERT_INTELLIGENCE_DATA_AND_TEACHER_ACCUMULATION_SUCCESSOR_ADMISSION.md`
+
+## Closed Previous Family
 
 - `LOCAL_SMALL_MODEL_STUDENT_UPGRADE_REVIEW`
   - `docs/plan/LOCAL_SMALL_MODEL_STUDENT_UPGRADE_REVIEW_PLAN.md`
@@ -38,11 +47,12 @@
 
 ## Purpose
 
-当前 `docs/plan/` 承载三段已经完成的连续目标：
+当前 `docs/plan/` 承载四段已经完成的连续目标：
 
 - predecessor `foundation`：证明 MVP shadow foundation 能跑通并已完成 closeout。
 - closed `hardening`：把 foundation 的 replay / retrieval / calibration / teacher / enrichment 残口压成新的 bounded successor，并已完成 closeout。
 - closed `small-model-upgrade-review`：对“是否进入本地小模型 student 实施”完成 readiness review，并给出 `not-yet` verdict。
+- closed `data-and-teacher-accumulation`：把 replay breadth / reviewed teacher volume / schema stability / multi-pilot evidence 压成真实代码、tests 和 artifacts，并给出 followup successor。
 
 ## Read Order
 
@@ -54,4 +64,4 @@
 
 - 当前没有 active family。
 - closed families 不得继续续写。
-- 若继续下一阶段，默认先回 `plan-creator`，为 `ALERT_INTELLIGENCE_DATA_AND_TEACHER_ACCUMULATION` 建新 pack。
+- 若继续下一阶段，默认先回 `plan-creator`，为 `ALERT_INTELLIGENCE_DATA_AND_TEACHER_ACCUMULATION_FOLLOWUP` 建新 pack。

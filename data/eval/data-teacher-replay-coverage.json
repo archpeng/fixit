@@ -1,0 +1,11 @@
+{
+  "services": [
+    "g-crm-campaign",
+    "prod-hq-bff-service"
+  ],
+  "pilot_service_count": 2,
+  "metrics_window_count": 12,
+  "log_window_count": 11,
+  "trace_window_count": 11,
+  "topology_service_count": 2
+}

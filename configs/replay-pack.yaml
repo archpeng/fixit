@@ -30,6 +30,8 @@ datasets:
     sources:
       - path: data/samples/raw/topology.jsonl
         class: live_bounded_export
+      - path: data/samples/fixtures/topology.retained.jsonl
+        class: retained_fixture
   - name: memory_summaries
     output: data/samples/replay/memory_summaries.jsonl
     sources:

@@ -1,2 +1,1 @@
-{"service":"g-crm-campaign","tier":"tier2","owner":"growth-campaign-oncall","repos":["g-crm-campaign","ad-compiler"],"blast_radius_score":0.68,"upstream_count":2,"downstream_count":3}
 {"service":"prod-hq-bff-service","tier":"tier1","owner":"hq-bff-oncall","repos":["prod-hq-bff-service","brand-detail-client"],"blast_radius_score":0.74,"upstream_count":3,"downstream_count":5}

@@ -1,0 +1,27 @@
+{
+  "criteria": [
+    {
+      "criterion_id": "multi_pilot_replay_coverage",
+      "status": "met",
+      "rationale": "pilot_service_count=2 services=['g-crm-campaign', 'prod-hq-bff-service']"
+    },
+    {
+      "criterion_id": "teacher_reviewed_volume_growth",
+      "status": "partial",
+      "rationale": "current_reviewed=2 predecessor=1 target=10"
+    },
+    {
+      "criterion_id": "schema_stability_window",
+      "status": "unmet",
+      "rationale": "schema_stability_days=1 target=14"
+    }
+  ],
+  "summary": {
+    "met": 1,
+    "partial": 1,
+    "unmet": 1
+  },
+  "verdict": "not-yet",
+  "recommended_successor": "ALERT_INTELLIGENCE_DATA_AND_TEACHER_ACCUMULATION_FOLLOWUP",
+  "reason": "Replay breadth improved, but teacher volume and schema stability still block a small-model review rerun."
+}

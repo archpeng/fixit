@@ -9,4 +9,6 @@ __all__ = [
     "shadow",
     "eval",
     "schema_tools",
+    "small_model_review",
+    "data_teacher_accumulation",
 ]

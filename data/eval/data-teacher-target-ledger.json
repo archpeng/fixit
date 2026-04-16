@@ -1,0 +1,50 @@
+{
+  "recommended_next_slice": "DW2.S1_TEACHER_REVIEW_BATCH_AND_LABEL_SOURCE_EXPANSION",
+  "execution_order": [
+    "DW1.S1_MULTI_PILOT_REPLAY_COVERAGE_EXPANSION",
+    "DW2.S1_TEACHER_REVIEW_BATCH_AND_LABEL_SOURCE_EXPANSION",
+    "DW3.S1_SCHEMA_STABILITY_HISTORY_AND_PHASE2_REFRESH"
+  ],
+  "workstreams": {
+    "DW1": {
+      "slice_id": "DW1.S1_MULTI_PILOT_REPLAY_COVERAGE_EXPANSION",
+      "focus": "expand bounded replay evidence beyond the single current pilot",
+      "current_pilot_service_count": 2,
+      "target_pilot_service_count": 2,
+      "pilot_service_count_gap": 0,
+      "current_replay_dataset_count": 9,
+      "status": "ready"
+    },
+    "DW2": {
+      "slice_id": "DW2.S1_TEACHER_REVIEW_BATCH_AND_LABEL_SOURCE_EXPANSION",
+      "focus": "grow reviewed teacher volume and keep label-source mix moving with provenance",
+      "current_teacher_reviewed_count": 1,
+      "target_teacher_reviewed_count": 10,
+      "teacher_reviewed_count_gap": 9,
+      "current_teacher_fallback_ratio": 0.5,
+      "target_teacher_fallback_ratio_max": 0.2,
+      "teacher_fallback_ratio_gap": 0.3,
+      "current_teacher_rubric_label_count": 1,
+      "teacher_rubric_label_growth_needed": true,
+      "status": "open"
+    },
+    "DW3": {
+      "slice_id": "DW3.S1_SCHEMA_STABILITY_HISTORY_AND_PHASE2_REFRESH",
+      "focus": "track schema stability over time and re-evaluate phase-2 readiness with refreshed evidence",
+      "current_schema_stability_days": 0,
+      "target_schema_stability_days": 14,
+      "schema_stability_days_gap": 14,
+      "phase2_summary": {
+        "met": 0,
+        "partial": 1,
+        "unmet": 4
+      },
+      "refresh_preconditions": [
+        "multi-pilot replay evidence exceeds 1 bounded pilot",
+        "reviewed teacher volume materially exceeds predecessor baseline",
+        "schema fingerprint history has at least one persisted checkpoint"
+      ],
+      "status": "open"
+    }
+  }
+}

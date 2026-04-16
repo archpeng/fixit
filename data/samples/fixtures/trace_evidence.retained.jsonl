@@ -2,3 +2,6 @@
 {"window_id":"w007","top_error_operation":"ADCService/Compile","error_span_ratio":0.28,"status_message":"brief compile error spike recovered quickly","sample_trace_ids":["trace-mid-1"]}
 {"window_id":"w008","top_error_operation":"ADCService/Compile","error_span_ratio":0.04,"status_message":"steady state","sample_trace_ids":["trace-low-2"]}
 {"window_id":"w009","top_error_operation":"ADCService/Compile","error_span_ratio":0.86,"status_message":"remote or network error: rpc error: code = 13 desc = biz error: code=500, msg=Internal server error","sample_trace_ids":["trace-severe-9"]}
+{"window_id":"w010","top_error_operation":"POST /brand/detail","error_span_ratio":0.09,"status_message":"brand detail request completed within budget","sample_trace_ids":["trace-bff-10"]}
+{"window_id":"w011","top_error_operation":"POST /brand/detail","error_span_ratio":0.12,"status_message":"brand detail upstream timeout recovered after retry","sample_trace_ids":["trace-bff-11"]}
+{"window_id":"w012","top_error_operation":"POST /brand/detail","error_span_ratio":0.04,"status_message":"brand detail steady state","sample_trace_ids":["trace-bff-12"]}

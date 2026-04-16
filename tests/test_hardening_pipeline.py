@@ -130,7 +130,7 @@ class HardeningPipelineTests(unittest.TestCase):
         self.assertEqual(row["owner"], "growth-campaign-oncall")
         self.assertEqual(usage_fallback[0]["source"], "config_fallback")
         summary = summarize_enrichment_usage(usage_fallback)
-        self.assertEqual(summary["fallback_count"], 1)
+        self.assertEqual(summary["fallback_count"], len(config_rows))
 
     def test_hardened_shadow_report_includes_freshness_fallback_and_queue_visibility(self):
         manifest = refresh_replay_pack(self.replay_cfg, ROOT, generated_at="2026-04-16T12:20:00Z")
