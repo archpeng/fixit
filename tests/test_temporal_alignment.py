@@ -14,6 +14,8 @@ from fixit_ai.temporal_alignment import (
     build_temporal_hybrid_context_probe,
     build_temporal_lineage,
     build_temporal_selective_hybrid_probe,
+    build_temporal_trigger_policy_audit,
+    build_temporal_calibration_threshold_audit,
     build_temporal_overlay_summary,
     build_temporal_overlays,
     build_temporal_prior_catalog,
@@ -276,6 +278,26 @@ class TemporalAlignmentTests(unittest.TestCase):
         self.assertGreater(by_id["ep_inc-other-service"]["selected_hybrid_packet_count"], 0)
         self.assertIn("raw_packet_metrics", result)
         self.assertIn("selective_packet_metrics", result)
+
+    def test_trigger_policy_audit_reports_bounded_temporal_policy_delta(self):
+        result = build_temporal_trigger_policy_audit(ROOT)
+        self.assertEqual(result["fold_count"], 4)
+        self.assertGreater(result["compare"]["packets_with_policy_delta_gt_raw"], 0)
+        self.assertGreater(result["compare"]["folds_with_policy_delta"], 0)
+        self.assertEqual(result["compare"]["anti_leakage_violation_count"], 0)
+        self.assertGreater(result["compare"]["temporal_triggered_packet_count"], result["compare"]["raw_triggered_packet_count"])
+        self.assertIn("recommended_temporal_band", result)
+        by_id = {item["episode_id"]: item for item in result["folds"]}
+        self.assertGreater(len(by_id["ep_inc-queue-depth"]["policy_delta_packet_ids"]), 0)
+
+    def test_calibration_threshold_audit_recommends_narrowest_non_empty_temporal_band(self):
+        result = build_temporal_calibration_threshold_audit(ROOT)
+        self.assertGreater(result["candidate_band_count"], 0)
+        self.assertIn("recommended_band", result)
+        self.assertGreater(result["recommended_band"]["packets_with_policy_delta_gt_raw"], 0)
+        self.assertEqual(result["recommended_band"]["anti_leakage_violation_count"], 0)
+        self.assertEqual(result["action_threshold_recommendation"], "keep_current_action_thresholds")
+        self.assertIn("candidate_bands", result)
 
     def test_heuristic_episode_grouping_clusters_unbacked_related_packets_but_keeps_bounds(self):
         packets = [

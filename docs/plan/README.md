@@ -2,8 +2,9 @@
 
 ## No Active Execute Family
 
-- current temporal P6 family is closed
-- current alert-intelligence daily residual lane remains blocked by real next-date progression
+- temporal P7 family is closed
+- temporal successor ladder currently collapses at P7 on current evidence
+- alert-intelligence daily residual lane remains blocked by real next-date progression
 
 ## Blocked Current Family
 
@@ -15,30 +16,34 @@
 
 ## Closed Current Family
 
+- `TEMPORAL_ALIGNMENT_P7_TRIGGER_POLICY_AND_CALIBRATION_THRESHOLD_AUDIT`
+  - `docs/plan/TEMPORAL_ALIGNMENT_P7_TRIGGER_POLICY_AND_CALIBRATION_THRESHOLD_AUDIT_PLAN.md`
+  - `docs/plan/TEMPORAL_ALIGNMENT_P7_TRIGGER_POLICY_AND_CALIBRATION_THRESHOLD_AUDIT_STATUS.md`
+  - `docs/plan/TEMPORAL_ALIGNMENT_P7_TRIGGER_POLICY_AND_CALIBRATION_THRESHOLD_AUDIT_WORKSET.md`
+  - `docs/plan/TEMPORAL_ALIGNMENT_P7_TRIGGER_POLICY_AND_CALIBRATION_THRESHOLD_AUDIT_CLOSEOUT_REVIEW.md`
+  - `docs/plan/TEMPORAL_ALIGNMENT_P7_TRIGGER_POLICY_AND_CALIBRATION_THRESHOLD_AUDIT_SUCCESSOR_ADMISSION.md`
+  - ladder outcome: `collapse_temporal_ladder_here`
+
+## Closed Previous Family
+
 - `TEMPORAL_ALIGNMENT_P6_SELECTIVE_HYBRID_ROUTING_AND_CALIBRATION_AUDIT`
   - `docs/plan/TEMPORAL_ALIGNMENT_P6_SELECTIVE_HYBRID_ROUTING_AND_CALIBRATION_AUDIT_PLAN.md`
   - `docs/plan/TEMPORAL_ALIGNMENT_P6_SELECTIVE_HYBRID_ROUTING_AND_CALIBRATION_AUDIT_STATUS.md`
   - `docs/plan/TEMPORAL_ALIGNMENT_P6_SELECTIVE_HYBRID_ROUTING_AND_CALIBRATION_AUDIT_WORKSET.md`
   - `docs/plan/TEMPORAL_ALIGNMENT_P6_SELECTIVE_HYBRID_ROUTING_AND_CALIBRATION_AUDIT_CLOSEOUT_REVIEW.md`
   - `docs/plan/TEMPORAL_ALIGNMENT_P6_SELECTIVE_HYBRID_ROUTING_AND_CALIBRATION_AUDIT_SUCCESSOR_ADMISSION.md`
-  - recommended successor: `TEMPORAL_ALIGNMENT_P7_TRIGGER_POLICY_AND_CALIBRATION_THRESHOLD_AUDIT`
-
-## Closed Previous Family
-
-- `TEMPORAL_ALIGNMENT_P5_HYBRID_CONTEXT_RETRIEVAL_AND_SCORE_DELTA_AUDIT`
-  - `docs/plan/TEMPORAL_ALIGNMENT_P5_HYBRID_CONTEXT_RETRIEVAL_AND_SCORE_DELTA_AUDIT_PLAN.md`
-  - `docs/plan/TEMPORAL_ALIGNMENT_P5_HYBRID_CONTEXT_RETRIEVAL_AND_SCORE_DELTA_AUDIT_STATUS.md`
-  - `docs/plan/TEMPORAL_ALIGNMENT_P5_HYBRID_CONTEXT_RETRIEVAL_AND_SCORE_DELTA_AUDIT_WORKSET.md`
-  - `docs/plan/TEMPORAL_ALIGNMENT_P5_HYBRID_CONTEXT_RETRIEVAL_AND_SCORE_DELTA_AUDIT_CLOSEOUT_REVIEW.md`
-  - `docs/plan/TEMPORAL_ALIGNMENT_P5_HYBRID_CONTEXT_RETRIEVAL_AND_SCORE_DELTA_AUDIT_SUCCESSOR_ADMISSION.md`
 
 ## Purpose
 
-当前 `docs/plan/` 承载一个被真实日期阻塞的 alert-intelligence family，以及已经连续闭合到 temporal P6 的 family 链路。
+当前 `docs/plan/` 承载：
+
+1. 一个被真实日期阻塞的 alert-intelligence daily residual family
+2. 已闭合到 P7 的 temporal family 链路
+3. 一个在当前证据下已于 P7 收束的 temporal successor ladder
 
 ## Control Rule
 
-- 当前没有 active execute slice。
+- 当前没有 active execute family。
 - blocked family 只能在其真实外部 gate 满足后恢复。
-- closed families 不得继续续写。
-- 若继续 temporal 深化，必须新开 successor family，而不是重开当前 closed pack。
+- temporal ladder 不得自动继续到 P8；当前 truth 是 `collapse_temporal_ladder_here`。
+- 若未来重新打开 temporal continuation，必须先有新的 evidence surface。

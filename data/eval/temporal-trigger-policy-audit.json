@@ -1,0 +1,176 @@
+{
+  "fold_count": 4,
+  "compare": {
+    "raw_triggered_packet_count": 5,
+    "temporal_triggered_packet_count": 8,
+    "packets_with_policy_delta_gt_raw": 3,
+    "folds_with_policy_delta": 2,
+    "budget_delta_packet_count": 3,
+    "anti_leakage_violation_count": 0
+  },
+  "raw_trigger_reason_counts": {
+    "high_novelty": 4,
+    "rule_missed_high_score": 2,
+    "low_confidence": 1
+  },
+  "temporal_trigger_reason_counts": {
+    "high_novelty": 4,
+    "rule_missed_high_score": 2,
+    "low_confidence": 1,
+    "temporal_agreement_score_delta_with_history": 3
+  },
+  "recommended_temporal_band": {
+    "band_id": "agreement_score_delta_with_history",
+    "description": "Require agreement-backed score delta plus at least three raw prior docs.",
+    "temporal_trigger_reason": "temporal_agreement_score_delta_with_history",
+    "rank": 2,
+    "selected_packet_ids": [
+      "ipk_w005",
+      "ipk_w010",
+      "ipk_w011"
+    ],
+    "selected_packet_count": 3,
+    "policy_delta_packet_ids": [
+      "ipk_w005",
+      "ipk_w010",
+      "ipk_w011"
+    ],
+    "packets_with_policy_delta_gt_raw": 3,
+    "folds_with_policy_delta": 2,
+    "raw_triggered_packet_count": 5,
+    "temporal_triggered_packet_count": 8,
+    "budget_delta_packet_count": 3,
+    "selected_actual_severe_count": 0,
+    "selected_actual_incident_count": 0,
+    "policy_delta_actual_severe_count": 0,
+    "policy_delta_actual_incident_count": 0,
+    "selected_packet_prior_doc_max": 7,
+    "selected_top_score_delta_max": 0.05,
+    "anti_leakage_violation_count": 0
+  },
+  "raw_packet_metrics": {
+    "severe_recall": 1.0,
+    "top_k_precision": 1.0,
+    "teacher_escalation_rate": 0.0,
+    "missed_severe_count": 0,
+    "missed_severe_packets": []
+  },
+  "selective_packet_metrics": {
+    "severe_recall": 1.0,
+    "top_k_precision": 1.0,
+    "teacher_escalation_rate": 0.0,
+    "missed_severe_count": 0,
+    "missed_severe_packets": []
+  },
+  "raw_episode_metrics": {
+    "episode_count": 4,
+    "severe_episode_recall": 1.0,
+    "top_k_episode_precision": 0.3333,
+    "missed_severe_episode_count": 0,
+    "missed_severe_episode_ids": []
+  },
+  "selective_episode_metrics": {
+    "episode_count": 4,
+    "severe_episode_recall": 1.0,
+    "top_k_episode_precision": 0.3333,
+    "missed_severe_episode_count": 0,
+    "missed_severe_episode_ids": []
+  },
+  "folds": [
+    {
+      "episode_id": "ep_inc-compile-500",
+      "eval_packet_ids": [
+        "ipk_w001",
+        "ipk_w004",
+        "ipk_w006",
+        "ipk_w009"
+      ],
+      "selected_band_packet_ids": [],
+      "raw_triggered_packet_ids": [
+        "ipk_w001",
+        "ipk_w004",
+        "ipk_w006",
+        "ipk_w009"
+      ],
+      "temporal_triggered_packet_ids": [
+        "ipk_w001",
+        "ipk_w004",
+        "ipk_w006",
+        "ipk_w009"
+      ],
+      "policy_delta_packet_ids": [],
+      "policy_delta_packet_count": 0,
+      "selected_hybrid_packet_ids": [],
+      "anti_leakage_violation_count": 0
+    },
+    {
+      "episode_id": "ep_inc-compile-warmup",
+      "eval_packet_ids": [
+        "ipk_w002",
+        "ipk_w007"
+      ],
+      "selected_band_packet_ids": [],
+      "raw_triggered_packet_ids": [
+        "ipk_w002"
+      ],
+      "temporal_triggered_packet_ids": [
+        "ipk_w002"
+      ],
+      "policy_delta_packet_ids": [],
+      "policy_delta_packet_count": 0,
+      "selected_hybrid_packet_ids": [
+        "ipk_w002",
+        "ipk_w007"
+      ],
+      "anti_leakage_violation_count": 0
+    },
+    {
+      "episode_id": "ep_inc-queue-depth",
+      "eval_packet_ids": [
+        "ipk_w005"
+      ],
+      "selected_band_packet_ids": [
+        "ipk_w005"
+      ],
+      "raw_triggered_packet_ids": [],
+      "temporal_triggered_packet_ids": [
+        "ipk_w005"
+      ],
+      "policy_delta_packet_ids": [
+        "ipk_w005"
+      ],
+      "policy_delta_packet_count": 1,
+      "selected_hybrid_packet_ids": [
+        "ipk_w005"
+      ],
+      "anti_leakage_violation_count": 0
+    },
+    {
+      "episode_id": "ep_inc-other-service",
+      "eval_packet_ids": [
+        "ipk_w010",
+        "ipk_w011",
+        "ipk_w012"
+      ],
+      "selected_band_packet_ids": [
+        "ipk_w010",
+        "ipk_w011"
+      ],
+      "raw_triggered_packet_ids": [],
+      "temporal_triggered_packet_ids": [
+        "ipk_w010",
+        "ipk_w011"
+      ],
+      "policy_delta_packet_ids": [
+        "ipk_w010",
+        "ipk_w011"
+      ],
+      "policy_delta_packet_count": 2,
+      "selected_hybrid_packet_ids": [
+        "ipk_w010",
+        "ipk_w011"
+      ],
+      "anti_leakage_violation_count": 0
+    }
+  ]
+}

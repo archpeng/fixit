@@ -1930,6 +1930,430 @@ def build_temporal_selective_hybrid_probe(root: Path | str) -> dict[str, Any]:
     }
 
 
+def _score_priority(score: float, thresholds: dict[str, Any]) -> str:
+    limits = thresholds["student"]["score_thresholds"]
+    if score >= limits["p1"]:
+        return "P1"
+    if score >= limits["p2"]:
+        return "P2"
+    if score >= limits["p3"]:
+        return "P3"
+    return "P4"
+
+
+def _teacher_policy_triggers(packet: dict[str, Any], score: dict[str, Any], trigger_cfg: dict[str, Any]) -> list[str]:
+    triggers: list[str] = []
+    if score.get("student_confidence", 0.0) < trigger_cfg["confidence_below"]:
+        triggers.append("low_confidence")
+    if score.get("novelty_score", 0.0) >= trigger_cfg["novelty_at_or_above"]:
+        triggers.append("high_novelty")
+    if packet.get("topology", {}).get("blast_radius_score", 0.0) >= trigger_cfg["blast_radius_at_or_above"]:
+        triggers.append("high_blast_radius")
+    if score.get("student_score", 0.0) >= trigger_cfg["severity_score_at_or_above"] and not packet.get("rules", {}).get("fired"):
+        triggers.append("rule_missed_high_score")
+    if packet.get("rules", {}).get("fired") and score.get("student_score", 0.0) <= trigger_cfg.get("rule_alert_score_below", 0.0):
+        triggers.append("rule_alert_score_conflict")
+    return triggers
+
+
+def _build_temporal_policy_base(root: Path | str) -> dict[str, Any]:
+    root = Path(root)
+    overlays = build_temporal_overlays(root)
+    thresholds = read_yaml(root / "configs/thresholds.yaml")
+    teacher_budget = read_yaml(root / "configs/teacher-budget.yaml")
+    schemas = SchemaBundle(root / "schemas")
+    top_k = thresholds["student"]["evaluation"]["top_k"]
+    candidate_limit = max(top_k * 2, top_k)
+    trigger_cfg = teacher_budget["trigger_thresholds"]
+    packets = read_jsonl(root / "data/samples/incident-packets.jsonl")
+    packet_by_id = {packet["packet_id"]: packet for packet in packets if packet.get("packet_id")}
+    outcomes = overlays["outcomes"]
+    outcome_by_packet = {row["packet_id"]: row for row in outcomes if row.get("packet_id")}
+    episodes = build_episode_index(root, overlays=overlays)
+    incident_pool = [
+        row
+        for row in overlays["historical_incidents"]
+        if row.get("cutoff_safe") and row.get("timestamp_quality") in {"exact_window_time", "exact_time_inherited"}
+    ]
+    raw_prior_pool = build_temporal_prior_catalog(root, overlays=overlays, episodes=episodes, packets=packets)
+
+    rows: list[dict[str, Any]] = []
+    fold_rows: list[dict[str, Any]] = []
+    raw_decisions: list[dict[str, Any]] = []
+    selective_decisions: list[dict[str, Any]] = []
+    eval_outcomes: list[dict[str, Any]] = []
+
+    for episode in episodes:
+        episode_id = episode["episode_id"]
+        episode_start_ts = episode.get("episode_start_ts")
+        eval_packet_ids = set(episode.get("packet_ids", []))
+        eval_packets = [packet_by_id[packet_id] for packet_id in episode.get("packet_ids", []) if packet_id in packet_by_id]
+
+        training_rows = []
+        for row in overlays["training_examples"]:
+            quality = row.get("timestamp_quality")
+            row_packet_id = row.get("packet_id")
+            if quality == "unknown_time":
+                training_rows.append(row)
+                continue
+            if not row.get("cutoff_safe"):
+                continue
+            if row_packet_id in eval_packet_ids:
+                continue
+            if row.get("derived_ts_end") and episode_start_ts and row["derived_ts_end"] < episode_start_ts:
+                training_rows.append(row)
+
+        boundary_incidents, _, boundary_incident_violations = _admissible_history_rows(
+            incident_pool,
+            episode_start_ts,
+            eval_packet_ids,
+            episode_id,
+            inclusive=True,
+        )
+        boundary_priors, _, boundary_prior_violations = _admissible_history_rows(
+            raw_prior_pool,
+            episode_start_ts,
+            eval_packet_ids,
+            episode_id,
+            inclusive=True,
+        )
+        context_priors = build_episode_context_priors(boundary_priors)
+
+        raw_history = [*boundary_incidents, *boundary_priors]
+        context_history = [*boundary_incidents, *context_priors]
+
+        model, _ = train_student_model(training_rows, thresholds)
+        raw_index = build_retrieval_index(raw_history)
+        context_index = build_retrieval_index(context_history)
+        raw_candidates = {
+            packet["packet_id"]: search_retrieval_index(
+                packet,
+                raw_index,
+                top_k=candidate_limit,
+                reference_ts=packet.get("ts_start"),
+                recency_half_life_minutes=60,
+            )
+            for packet in eval_packets
+        }
+        context_candidates = {
+            packet["packet_id"]: search_retrieval_index(
+                packet,
+                context_index,
+                top_k=candidate_limit,
+                reference_ts=packet.get("ts_start"),
+                recency_half_life_minutes=60,
+            )
+            for packet in eval_packets
+        }
+        raw_retrieval = {packet_id: refs[:top_k] for packet_id, refs in raw_candidates.items()}
+        hybrid_retrieval = {
+            packet_id: _merge_hybrid_retrieval(raw_candidates.get(packet_id, []), context_candidates.get(packet_id, []), top_k=top_k)
+            for packet_id in raw_candidates
+        }
+
+        raw_scores = predict_packets(model, eval_packets, raw_retrieval)
+        hybrid_scores = predict_packets(model, eval_packets, hybrid_retrieval)
+        raw_score_by_packet = {item["packet_id"]: item for item in raw_scores}
+        hybrid_score_by_packet = {item["packet_id"]: item for item in hybrid_scores}
+
+        selective_retrieval: dict[str, list[dict[str, Any]]] = {}
+        selective_scores: list[dict[str, Any]] = []
+        raw_triggered_packet_ids: list[str] = []
+        selected_hybrid_packet_ids: list[str] = []
+        episode_rows: list[dict[str, Any]] = []
+
+        for packet in eval_packets:
+            packet_id = packet["packet_id"]
+            raw_top = next(iter(raw_retrieval.get(packet_id, [])), None)
+            hybrid_top = next(iter(hybrid_retrieval.get(packet_id, [])), None)
+            use_hybrid = bool(
+                raw_top
+                and hybrid_top
+                and (hybrid_top.get("agreement_bonus", 0.0) > 0)
+                and (_retrieval_group_key(raw_top) == _retrieval_group_key(hybrid_top))
+            )
+            if use_hybrid:
+                selected_hybrid_packet_ids.append(packet_id)
+                selective_retrieval[packet_id] = hybrid_retrieval.get(packet_id, [])
+                selective_scores.append(hybrid_score_by_packet[packet_id])
+            else:
+                selective_retrieval[packet_id] = raw_retrieval.get(packet_id, [])
+                selective_scores.append(raw_score_by_packet[packet_id])
+
+            raw_score = raw_score_by_packet[packet_id]
+            raw_trigger_reasons = _teacher_policy_triggers(packet, raw_score, trigger_cfg)
+            if raw_trigger_reasons:
+                raw_triggered_packet_ids.append(packet_id)
+            top_score_delta = 0.0
+            selected_confidence_delta = 0.0
+            if use_hybrid:
+                top_score_delta = round(
+                    (hybrid_top or {}).get("similarity_score", 0.0) - (raw_top or {}).get("similarity_score", 0.0),
+                    4,
+                )
+                selected_confidence_delta = round(
+                    hybrid_score_by_packet[packet_id]["student_confidence"] - raw_score["student_confidence"],
+                    4,
+                )
+            outcome = outcome_by_packet.get(packet_id, {})
+            row = {
+                "episode_id": episode_id,
+                "packet_id": packet_id,
+                "service": packet.get("service"),
+                "operation": packet.get("operation"),
+                "raw_triggered": bool(raw_trigger_reasons),
+                "raw_trigger_reasons": raw_trigger_reasons,
+                "raw_priority": _score_priority(raw_score["student_score"], thresholds),
+                "raw_student_score": raw_score["student_score"],
+                "raw_student_confidence": raw_score["student_confidence"],
+                "novelty_score": raw_score["novelty_score"],
+                "selected_for_hybrid": use_hybrid,
+                "top_score_delta": top_score_delta,
+                "selected_confidence_delta": selected_confidence_delta,
+                "raw_packet_prior_doc_count": len(boundary_priors),
+                "selective_hybrid_context_prior_doc_count": len(context_priors),
+                "actual_severe": bool(outcome.get("actual_severe")),
+                "actual_priority": outcome.get("actual_priority"),
+                "incident": bool(outcome.get("incident")),
+                "anti_leakage_violation_count": boundary_incident_violations + boundary_prior_violations,
+            }
+            rows.append(row)
+            episode_rows.append(row)
+
+        raw_fold_decisions = build_triage_decisions(eval_packets, raw_retrieval, raw_scores, [], thresholds, schemas)
+        selective_fold_decisions = build_triage_decisions(eval_packets, selective_retrieval, selective_scores, [], thresholds, schemas)
+        fold_outcomes = [row for row in outcomes if row.get("packet_id") in eval_packet_ids]
+        eval_outcomes.extend(fold_outcomes)
+        raw_decisions.extend(raw_fold_decisions)
+        selective_decisions.extend(selective_fold_decisions)
+        fold_rows.append(
+            {
+                "episode_id": episode_id,
+                "eval_packet_ids": sorted(eval_packet_ids),
+                "raw_triggered_packet_ids": sorted(raw_triggered_packet_ids),
+                "selected_hybrid_packet_ids": sorted(selected_hybrid_packet_ids),
+                "raw_packet_prior_doc_count": len(boundary_priors),
+                "selective_hybrid_context_prior_doc_count": len(context_priors),
+                "anti_leakage_violation_count": boundary_incident_violations + boundary_prior_violations,
+                "rows": episode_rows,
+            }
+        )
+
+    return {
+        "fold_count": len(episodes),
+        "rows": rows,
+        "folds": fold_rows,
+        "raw_packet_metrics": compute_eval_metrics(raw_decisions, eval_outcomes, top_k=top_k),
+        "selective_packet_metrics": compute_eval_metrics(selective_decisions, eval_outcomes, top_k=top_k),
+        "raw_episode_metrics": _episode_metrics(raw_decisions, eval_outcomes, episodes, top_k=top_k),
+        "selective_episode_metrics": _episode_metrics(selective_decisions, eval_outcomes, episodes, top_k=top_k),
+        "anti_leakage_violation_count": sum(fold["anti_leakage_violation_count"] for fold in fold_rows),
+    }
+
+
+def _temporal_policy_band_candidates(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    return [
+        {
+            "rank": 1,
+            "band_id": "agreement_score_delta_overlay",
+            "description": "Select packets with agreement-backed hybrid routing and positive top-score delta.",
+            "predicate": lambda row: row["selected_for_hybrid"] and row["top_score_delta"] > 0,
+            "temporal_trigger_reason": "temporal_agreement_score_delta",
+        },
+        {
+            "rank": 2,
+            "band_id": "agreement_score_delta_with_history",
+            "description": "Require agreement-backed score delta plus at least three raw prior docs.",
+            "predicate": lambda row: row["selected_for_hybrid"] and row["top_score_delta"] >= 0.05 and row["raw_packet_prior_doc_count"] >= 3,
+            "temporal_trigger_reason": "temporal_agreement_score_delta_with_history",
+        },
+        {
+            "rank": 3,
+            "band_id": "agreement_score_delta_history_backstop",
+            "description": "Temporal backstop for packets that remain raw-untriggered P4 cases despite agreement-backed score delta and history support.",
+            "predicate": lambda row: row["selected_for_hybrid"] and row["top_score_delta"] >= 0.05 and row["raw_packet_prior_doc_count"] >= 3 and (not row["raw_triggered"]) and row["raw_priority"] == "P4",
+            "temporal_trigger_reason": "temporal_score_delta_backstop",
+        },
+    ]
+
+
+def _materialize_temporal_policy_band(base: dict[str, Any], band: dict[str, Any]) -> dict[str, Any]:
+    rows = base["rows"]
+    selected_rows = [row for row in rows if band["predicate"](row)]
+    policy_delta_rows = [row for row in selected_rows if not row["raw_triggered"]]
+    selected_packet_ids = sorted(row["packet_id"] for row in selected_rows)
+    policy_delta_packet_ids = sorted(row["packet_id"] for row in policy_delta_rows)
+    raw_triggered_packet_ids = sorted(row["packet_id"] for row in rows if row["raw_triggered"])
+    temporal_triggered_packet_ids = sorted(set(raw_triggered_packet_ids) | set(policy_delta_packet_ids))
+
+    folds: list[dict[str, Any]] = []
+    for fold in base["folds"]:
+        episode_id = fold["episode_id"]
+        fold_selected_rows = [row for row in selected_rows if row["episode_id"] == episode_id]
+        fold_policy_delta_rows = [row for row in policy_delta_rows if row["episode_id"] == episode_id]
+        fold_policy_delta_packet_ids = sorted(row["packet_id"] for row in fold_policy_delta_rows)
+        fold_temporal_triggered_packet_ids = sorted(set(fold["raw_triggered_packet_ids"]) | set(fold_policy_delta_packet_ids))
+        folds.append(
+            {
+                "episode_id": episode_id,
+                "eval_packet_ids": list(fold["eval_packet_ids"]),
+                "selected_band_packet_ids": sorted(row["packet_id"] for row in fold_selected_rows),
+                "raw_triggered_packet_ids": list(fold["raw_triggered_packet_ids"]),
+                "temporal_triggered_packet_ids": fold_temporal_triggered_packet_ids,
+                "policy_delta_packet_ids": fold_policy_delta_packet_ids,
+                "policy_delta_packet_count": len(fold_policy_delta_packet_ids),
+                "selected_hybrid_packet_ids": list(fold["selected_hybrid_packet_ids"]),
+                "anti_leakage_violation_count": fold["anti_leakage_violation_count"],
+            }
+        )
+
+    return {
+        "band_id": band["band_id"],
+        "description": band["description"],
+        "temporal_trigger_reason": band["temporal_trigger_reason"],
+        "rank": band["rank"],
+        "selected_packet_ids": selected_packet_ids,
+        "selected_packet_count": len(selected_packet_ids),
+        "policy_delta_packet_ids": policy_delta_packet_ids,
+        "packets_with_policy_delta_gt_raw": len(policy_delta_packet_ids),
+        "folds_with_policy_delta": sum(1 for fold in folds if fold["policy_delta_packet_count"] > 0),
+        "raw_triggered_packet_count": len(raw_triggered_packet_ids),
+        "temporal_triggered_packet_count": len(temporal_triggered_packet_ids),
+        "budget_delta_packet_count": max(len(temporal_triggered_packet_ids) - len(raw_triggered_packet_ids), 0),
+        "selected_actual_severe_count": sum(1 for row in selected_rows if row["actual_severe"]),
+        "selected_actual_incident_count": sum(1 for row in selected_rows if row["incident"]),
+        "policy_delta_actual_severe_count": sum(1 for row in policy_delta_rows if row["actual_severe"]),
+        "policy_delta_actual_incident_count": sum(1 for row in policy_delta_rows if row["incident"]),
+        "selected_packet_prior_doc_max": max((row["raw_packet_prior_doc_count"] for row in selected_rows), default=0),
+        "selected_top_score_delta_max": max((row["top_score_delta"] for row in selected_rows), default=0.0),
+        "anti_leakage_violation_count": base["anti_leakage_violation_count"],
+        "folds": folds,
+    }
+
+
+def build_temporal_trigger_policy_audit(root: Path | str) -> dict[str, Any]:
+    base = _build_temporal_policy_base(root)
+    candidate_bands = [_materialize_temporal_policy_band(base, band) for band in _temporal_policy_band_candidates(base["rows"])]
+    admissible_bands = [
+        band
+        for band in candidate_bands
+        if band["packets_with_policy_delta_gt_raw"] > 0 and band["anti_leakage_violation_count"] == 0
+    ]
+    recommended_band = min(
+        admissible_bands,
+        key=lambda item: (item["selected_packet_count"], item["budget_delta_packet_count"], item["rank"]),
+    )
+
+    raw_trigger_reason_counts: dict[str, int] = {}
+    for row in base["rows"]:
+        for reason in row["raw_trigger_reasons"]:
+            raw_trigger_reason_counts[reason] = raw_trigger_reason_counts.get(reason, 0) + 1
+
+    temporal_trigger_reason_counts = dict(raw_trigger_reason_counts)
+    if recommended_band["packets_with_policy_delta_gt_raw"] > 0:
+        temporal_trigger_reason_counts[recommended_band["temporal_trigger_reason"]] = recommended_band["packets_with_policy_delta_gt_raw"]
+
+    return {
+        "fold_count": base["fold_count"],
+        "compare": {
+            "raw_triggered_packet_count": recommended_band["raw_triggered_packet_count"],
+            "temporal_triggered_packet_count": recommended_band["temporal_triggered_packet_count"],
+            "packets_with_policy_delta_gt_raw": recommended_band["packets_with_policy_delta_gt_raw"],
+            "folds_with_policy_delta": recommended_band["folds_with_policy_delta"],
+            "budget_delta_packet_count": recommended_band["budget_delta_packet_count"],
+            "anti_leakage_violation_count": recommended_band["anti_leakage_violation_count"],
+        },
+        "raw_trigger_reason_counts": raw_trigger_reason_counts,
+        "temporal_trigger_reason_counts": temporal_trigger_reason_counts,
+        "recommended_temporal_band": {
+            key: value
+            for key, value in recommended_band.items()
+            if key != "folds"
+        },
+        "raw_packet_metrics": base["raw_packet_metrics"],
+        "selective_packet_metrics": base["selective_packet_metrics"],
+        "raw_episode_metrics": base["raw_episode_metrics"],
+        "selective_episode_metrics": base["selective_episode_metrics"],
+        "folds": recommended_band["folds"],
+    }
+
+
+def build_temporal_calibration_threshold_audit(root: Path | str) -> dict[str, Any]:
+    base = _build_temporal_policy_base(root)
+    candidate_bands = [_materialize_temporal_policy_band(base, band) for band in _temporal_policy_band_candidates(base["rows"])]
+    admissible_bands = [
+        band
+        for band in candidate_bands
+        if band["packets_with_policy_delta_gt_raw"] > 0 and band["anti_leakage_violation_count"] == 0
+    ]
+    recommended_band = min(
+        admissible_bands,
+        key=lambda item: (item["selected_packet_count"], item["budget_delta_packet_count"], item["rank"]),
+    )
+
+    return {
+        "candidate_band_count": len(candidate_bands),
+        "candidate_bands": [
+            {
+                key: value
+                for key, value in band.items()
+                if key != "folds"
+            }
+            for band in candidate_bands
+        ],
+        "recommended_band": {
+            key: value
+            for key, value in recommended_band.items()
+            if key != "folds"
+        },
+        "action_threshold_recommendation": "keep_current_action_thresholds",
+        "teacher_trigger_recommendation": f"trial_{recommended_band['band_id']}_as_bounded_review_backstop",
+        "reason": "Current temporal evidence supports a bounded teacher-trigger backstop before any action-threshold change is admitted.",
+        "raw_packet_metrics": base["raw_packet_metrics"],
+        "selective_packet_metrics": base["selective_packet_metrics"],
+        "raw_episode_metrics": base["raw_episode_metrics"],
+        "selective_episode_metrics": base["selective_episode_metrics"],
+    }
+
+
+def render_temporal_trigger_policy_audit_markdown(result: dict[str, Any]) -> str:
+    lines = ["# Temporal Trigger Policy Audit", "", "## Compare"]
+    lines.append(f"- fold count: `{result['fold_count']}`")
+    for key, value in result.get("compare", {}).items():
+        lines.append(f"- {key}: `{value}`")
+    lines.extend(["", "## Recommended Temporal Band"])
+    for key, value in result.get("recommended_temporal_band", {}).items():
+        lines.append(f"- {key}: `{value}`")
+    lines.extend(["", "## Raw Trigger Reason Counts"])
+    for key, value in result.get("raw_trigger_reason_counts", {}).items():
+        lines.append(f"- {key}: `{value}`")
+    lines.extend(["", "## Temporal Trigger Reason Counts"])
+    for key, value in result.get("temporal_trigger_reason_counts", {}).items():
+        lines.append(f"- {key}: `{value}`")
+    lines.extend(["", "## Folds"])
+    for fold in result.get("folds", []):
+        lines.append(
+            f"- `{fold['episode_id']}` raw_triggered={fold['raw_triggered_packet_ids']} temporal_triggered={fold['temporal_triggered_packet_ids']} policy_delta={fold['policy_delta_packet_ids']} selected_band={fold['selected_band_packet_ids']} leakage_violations={fold['anti_leakage_violation_count']}"
+        )
+    return "\n".join(lines) + "\n"
+
+
+def render_temporal_calibration_threshold_audit_markdown(result: dict[str, Any]) -> str:
+    lines = ["# Temporal Calibration Threshold Audit", "", "## Recommendation"]
+    lines.append(f"- action_threshold_recommendation: `{result['action_threshold_recommendation']}`")
+    lines.append(f"- teacher_trigger_recommendation: `{result['teacher_trigger_recommendation']}`")
+    lines.append(f"- reason: {result['reason']}")
+    lines.extend(["", "## Recommended Band"])
+    for key, value in result.get("recommended_band", {}).items():
+        lines.append(f"- {key}: `{value}`")
+    lines.extend(["", "## Candidate Bands"])
+    for band in result.get("candidate_bands", []):
+        lines.append(
+            f"- `{band['band_id']}` selected={band['selected_packet_count']} delta={band['packets_with_policy_delta_gt_raw']} folds={band['folds_with_policy_delta']} budget_delta={band['budget_delta_packet_count']} severe={band['selected_actual_severe_count']} incidents={band['selected_actual_incident_count']}"
+        )
+    return "\n".join(lines) + "\n"
+
+
 def render_temporal_selective_hybrid_probe_markdown(result: dict[str, Any]) -> str:
     lines = ["# Temporal Selective Hybrid Probe", "", "## Compare"]
     lines.append(f"- fold count: `{result['fold_count']}`")
