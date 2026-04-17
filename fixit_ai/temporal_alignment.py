@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import re
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
@@ -9,7 +10,7 @@ from fixit_ai.eval import compute_eval_metrics
 from fixit_ai.retrieval_index import build_retrieval_index, search_retrieval_index
 from fixit_ai.schema_tools import SchemaBundle
 from fixit_ai.shadow import build_triage_decisions
-from fixit_ai.student import predict_packets, train_student_model
+from fixit_ai.student import TEMPORAL_FEATURE_NAMES, predict_packets, train_student_model
 
 TIME_HINT_RE = re.compile(r"\b(20\d{2}-\d{2}-\d{2}|20\d{2}-\d{2})\b")
 
@@ -336,15 +337,34 @@ def build_temporal_overlay_summary(overlays: dict[str, list[dict[str, Any]]]) ->
     return {"datasets": datasets}
 
 
-def build_episode_index(root: Path | str, overlays: dict[str, list[dict[str, Any]]] | None = None) -> list[dict[str, Any]]:
-    root = Path(root)
-    overlays = overlays or build_temporal_overlays(root)
-    packet_rows = read_jsonl(root / "data/samples/incident-packets.jsonl")
-    packet_by_id = {row["packet_id"]: row for row in packet_rows if row.get("packet_id")}
+def _parse_ts(value: str | None) -> datetime | None:
+    if not value:
+        return None
+    return datetime.fromisoformat(value.replace("Z", "+00:00"))
 
+
+def _packet_group_tokens(packet: dict[str, Any]) -> set[str]:
+    template = " ".join(item.get("template", "") for item in packet.get("logs", {}).get("top_templates", [])[:1])
+    status = packet.get("traces", {}).get("status_message", "")
+    tokens = set(re.findall(r"[a-zA-Z0-9]+", f"{template} {status}".lower()))
+    return {token for token in tokens if token not in {"on", "the", "a", "an", "of"}}
+
+
+def _episode_slug(service: str | None, operation: str | None) -> str:
+    normalized = re.sub(r"[^a-z0-9]+", "_", f"{service or 'unknown'}_{operation or 'unknown'}".lower()).strip("_")
+    return normalized or "unknown"
+
+
+def build_episode_index_from_records(
+    packets: list[dict[str, Any]],
+    incident_overlays: list[dict[str, Any]],
+    heuristic_gap_minutes: int = 60,
+) -> list[dict[str, Any]]:
+    packet_by_id = {row["packet_id"]: row for row in packets if row.get("packet_id")}
     episodes: list[dict[str, Any]] = []
     covered_packet_ids: set[str] = set()
-    for incident in overlays.get("historical_incidents", []):
+
+    for incident in incident_overlays:
         packet_ids = [packet_id for packet_id in incident.get("time_source_refs", []) if packet_id in packet_by_id]
         if not packet_ids:
             continue
@@ -363,26 +383,65 @@ def build_episode_index(root: Path | str, overlays: dict[str, list[dict[str, Any
             }
         )
 
-    for packet_id in sorted(packet_by_id):
-        if packet_id in covered_packet_ids:
-            continue
-        packet = packet_by_id[packet_id]
+    uncovered_packets = [packet for packet in packets if packet.get("packet_id") not in covered_packet_ids]
+    uncovered_packets.sort(key=lambda item: (item.get("ts_start") or "", item.get("packet_id") or ""))
+    cluster_counters: dict[str, int] = {}
+    current_cluster: list[dict[str, Any]] = []
+
+    def flush_cluster() -> None:
+        nonlocal current_cluster
+        if not current_cluster:
+            return
+        service = current_cluster[0].get("service")
+        operation = current_cluster[0].get("operation")
+        slug = _episode_slug(service, operation)
+        cluster_counters[slug] = cluster_counters.get(slug, 0) + 1
         episodes.append(
             {
-                "episode_id": f"ep_packet_{packet_id}",
+                "episode_id": f"ep_heuristic_{slug}_{cluster_counters[slug]:03d}",
                 "incident_id": None,
-                "service": packet.get("service"),
-                "operation": packet.get("operation"),
-                "packet_ids": [packet_id],
-                "episode_start_ts": packet.get("ts_start"),
-                "episode_end_ts": packet.get("ts_end"),
-                "episode_source": "single_packet_fallback",
+                "service": service,
+                "operation": operation,
+                "packet_ids": [packet["packet_id"] for packet in current_cluster],
+                "episode_start_ts": current_cluster[0].get("ts_start"),
+                "episode_end_ts": current_cluster[-1].get("ts_end"),
+                "episode_source": "heuristic_packet_cluster",
                 "timestamp_quality": "exact_window_time",
             }
         )
+        current_cluster = []
+
+    for packet in uncovered_packets:
+        if not current_cluster:
+            current_cluster = [packet]
+            continue
+        previous = current_cluster[-1]
+        same_service = packet.get("service") == previous.get("service")
+        same_operation = packet.get("operation") == previous.get("operation")
+        current_tokens = _packet_group_tokens(packet)
+        previous_tokens = _packet_group_tokens(previous)
+        token_overlap = len(current_tokens & previous_tokens)
+        previous_end = _parse_ts(previous.get("ts_end"))
+        current_start = _parse_ts(packet.get("ts_start"))
+        gap_minutes = (
+            (current_start - previous_end).total_seconds() / 60.0 if previous_end and current_start else heuristic_gap_minutes + 1
+        )
+        if same_service and same_operation and token_overlap >= 2 and gap_minutes <= heuristic_gap_minutes:
+            current_cluster.append(packet)
+        else:
+            flush_cluster()
+            current_cluster = [packet]
+    flush_cluster()
 
     episodes.sort(key=lambda item: (item.get("episode_start_ts") or "", item["episode_id"]))
     return episodes
+
+
+def build_episode_index(root: Path | str, overlays: dict[str, list[dict[str, Any]]] | None = None) -> list[dict[str, Any]]:
+    root = Path(root)
+    overlays = overlays or build_temporal_overlays(root)
+    packet_rows = read_jsonl(root / "data/samples/incident-packets.jsonl")
+    return build_episode_index_from_records(packet_rows, overlays.get("historical_incidents", []))
 
 
 def _episode_metrics(decisions: list[dict[str, Any]], outcomes: list[dict[str, Any]], episodes: list[dict[str, Any]], top_k: int) -> dict[str, Any]:
@@ -484,6 +543,16 @@ def run_time_aware_historical_eval(root: Path | str) -> dict[str, Any]:
         strict_retrieval = {
             packet["packet_id"]: search_retrieval_index(packet, strict_index, top_k=top_k) for packet in eval_packets
         }
+        recency_retrieval = {
+            packet["packet_id"]: search_retrieval_index(
+                packet,
+                strict_index,
+                top_k=top_k,
+                reference_ts=packet.get("ts_start"),
+                recency_half_life_minutes=60,
+            )
+            for packet in eval_packets
+        }
         relaxed_retrieval = {
             packet["packet_id"]: search_retrieval_index(packet, relaxed_index, top_k=top_k) for packet in eval_packets
         }
@@ -495,6 +564,18 @@ def run_time_aware_historical_eval(root: Path | str) -> dict[str, Any]:
             all_decisions.append({**decision, "episode_id": episode["episode_id"]})
         all_eval_outcomes.extend(fold_outcomes)
 
+        recency_delta = False
+        for packet in eval_packets:
+            packet_id = packet["packet_id"]
+            strict_refs = strict_retrieval.get(packet_id, [])
+            recency_refs = recency_retrieval.get(packet_id, [])
+            if [item.get("incident_id") for item in strict_refs] != [item.get("incident_id") for item in recency_refs]:
+                recency_delta = True
+                break
+            if [item.get("similarity_score") for item in strict_refs] != [item.get("similarity_score") for item in recency_refs]:
+                recency_delta = True
+                break
+
         folds.append(
             {
                 "episode_id": episode["episode_id"],
@@ -504,7 +585,9 @@ def run_time_aware_historical_eval(root: Path | str) -> dict[str, Any]:
                 "strict_history_incident_count": len(strict_history),
                 "relaxed_history_incident_count": len(relaxed_history),
                 "strict_retrieval_ref_count": sum(len(item) for item in strict_retrieval.values()),
+                "recency_retrieval_ref_count": sum(len(item) for item in recency_retrieval.values()),
                 "relaxed_retrieval_ref_count": sum(len(item) for item in relaxed_retrieval.values()),
+                "recency_delta": recency_delta,
             }
         )
 
@@ -522,14 +605,178 @@ def run_time_aware_historical_eval(root: Path | str) -> dict[str, Any]:
             default=0,
         ),
     }
+    recency_compare = {
+        "fold_count": len(folds),
+        "strict_cutoff_fold_count": len(folds),
+        "folds_with_recency_delta": sum(1 for fold in folds if fold["recency_delta"]),
+    }
     return {
         "episode_count": len(episodes),
         "packet_count": len(all_decisions),
         "packet_metrics": packet_metrics,
         "episode_metrics": episode_metrics,
         "cutoff_leakage_audit": cutoff_leakage_audit,
+        "recency_compare": recency_compare,
         "folds": folds,
     }
+
+
+def _minutes_between(previous_ts: str | None, current_ts: str | None) -> float | None:
+    previous = _parse_ts(previous_ts)
+    current = _parse_ts(current_ts)
+    if not previous or not current:
+        return None
+    return max((current - previous).total_seconds() / 60.0, 0.0)
+
+
+def build_light_temporal_feature_map(packets: list[dict[str, Any]], lookback_minutes: int = 60) -> dict[str, dict[str, float]]:
+    sorted_packets = sorted(packets, key=lambda item: (item.get("ts_start") or "", item.get("packet_id") or ""))
+    prior_by_service: dict[str, list[dict[str, Any]]] = {}
+    feature_map: dict[str, dict[str, float]] = {}
+
+    for packet in sorted_packets:
+        service = packet.get("service") or "unknown"
+        history = prior_by_service.setdefault(service, [])
+        current_start = packet.get("ts_start")
+        recent_packets: list[dict[str, Any]] = []
+        for prior in history:
+            gap_minutes = _minutes_between(prior.get("ts_start"), current_start)
+            if gap_minutes is not None and gap_minutes <= lookback_minutes:
+                recent_packets.append(prior)
+
+        previous_same_service = history[-1] if history else None
+        gap_minutes = _minutes_between(previous_same_service.get("ts_start"), current_start) if previous_same_service else None
+        feature_map[packet["packet_id"]] = {
+            "same_service_recent_packet_count": min(len(recent_packets) / 5.0, 1.0),
+            "same_service_recent_error_packet_count": min(
+                sum(1 for prior in recent_packets if prior.get("metrics", {}).get("error_rate_delta", 0.0) >= 0.05) / 5.0,
+                1.0,
+            ),
+            "same_service_prev_gap_inverse": 0.0
+            if gap_minutes is None
+            else max(0.0, min(1.0 - (gap_minutes / lookback_minutes), 1.0)),
+        }
+        history.append(packet)
+    return feature_map
+
+
+def _apply_temporal_features_to_training_rows(
+    training_rows: list[dict[str, Any]],
+    feature_map: dict[str, dict[str, float]],
+) -> tuple[list[dict[str, Any]], dict[str, int]]:
+    packet_linked = 0
+    legacy_zero_filled = 0
+    enriched_rows: list[dict[str, Any]] = []
+    for row in training_rows:
+        packet_id = row.get("packet_id")
+        features = dict(row.get("features", {}))
+        temporal_features = feature_map.get(packet_id, {}) if packet_id else {}
+        if packet_id and packet_id in feature_map:
+            packet_linked += 1
+        else:
+            legacy_zero_filled += 1
+        for name in TEMPORAL_FEATURE_NAMES:
+            features[name] = temporal_features.get(name, 0.0)
+        enriched_rows.append({**row, "features": features})
+    return enriched_rows, {
+        "packet_linked_training_count": packet_linked,
+        "legacy_zero_filled_count": legacy_zero_filled,
+    }
+
+
+def build_temporal_feature_experiment(root: Path | str) -> dict[str, Any]:
+    root = Path(root)
+    overlays = build_temporal_overlays(root)
+    thresholds = read_yaml(root / "configs/thresholds.yaml")
+    schemas = SchemaBundle(root / "schemas")
+    top_k = thresholds["student"]["evaluation"]["top_k"]
+    packets = read_jsonl(root / "data/samples/incident-packets.jsonl")
+    packet_by_id = {packet["packet_id"]: packet for packet in packets if packet.get("packet_id")}
+    feature_map = build_light_temporal_feature_map(packets)
+    outcomes = overlays["outcomes"]
+    episodes = build_episode_index(root, overlays=overlays)
+    strict_history_pool = [
+        row
+        for row in overlays["historical_incidents"]
+        if row.get("cutoff_safe") and row.get("timestamp_quality") in {"exact_window_time", "exact_time_inherited"}
+    ]
+
+    baseline_decisions: list[dict[str, Any]] = []
+    temporal_decisions: list[dict[str, Any]] = []
+    eval_outcomes: list[dict[str, Any]] = []
+
+    _, coverage = _apply_temporal_features_to_training_rows(overlays["training_examples"], feature_map)
+    for episode in episodes:
+        episode_start_ts = episode.get("episode_start_ts")
+        eval_packet_ids = set(episode.get("packet_ids", []))
+        eval_packets = [packet_by_id[packet_id] for packet_id in episode.get("packet_ids", []) if packet_id in packet_by_id]
+
+        training_rows = []
+        for row in overlays["training_examples"]:
+            quality = row.get("timestamp_quality")
+            row_packet_id = row.get("packet_id")
+            if quality == "unknown_time":
+                training_rows.append(row)
+                continue
+            if not row.get("cutoff_safe"):
+                continue
+            if row_packet_id in eval_packet_ids:
+                continue
+            if row.get("derived_ts_end") and episode_start_ts and row["derived_ts_end"] < episode_start_ts:
+                training_rows.append(row)
+
+        temporal_training_rows, _ = _apply_temporal_features_to_training_rows(training_rows, feature_map)
+
+        strict_history = [
+            row
+            for row in strict_history_pool
+            if row.get("derived_ts_end") and episode_start_ts and row["derived_ts_end"] < episode_start_ts
+        ]
+        strict_index = build_retrieval_index(strict_history)
+        recency_retrieval = {
+            packet["packet_id"]: search_retrieval_index(
+                packet,
+                strict_index,
+                top_k=top_k,
+                reference_ts=packet.get("ts_start"),
+                recency_half_life_minutes=60,
+            )
+            for packet in eval_packets
+        }
+
+        baseline_model, _ = train_student_model(training_rows, thresholds)
+        temporal_model, _ = train_student_model(temporal_training_rows, thresholds)
+        baseline_scores = predict_packets(baseline_model, eval_packets, recency_retrieval)
+        temporal_scores = predict_packets(temporal_model, eval_packets, recency_retrieval, temporal_context_by_packet=feature_map)
+
+        baseline_fold_decisions = build_triage_decisions(eval_packets, recency_retrieval, baseline_scores, [], thresholds, schemas)
+        temporal_fold_decisions = build_triage_decisions(eval_packets, recency_retrieval, temporal_scores, [], thresholds, schemas)
+        fold_outcomes = [row for row in outcomes if row.get("packet_id") in eval_packet_ids]
+        eval_outcomes.extend(fold_outcomes)
+        baseline_decisions.extend(baseline_fold_decisions)
+        temporal_decisions.extend(temporal_fold_decisions)
+
+    return {
+        "fold_count": len(episodes),
+        "temporal_feature_names": TEMPORAL_FEATURE_NAMES,
+        "temporal_feature_coverage": coverage,
+        "baseline_packet_metrics": compute_eval_metrics(baseline_decisions, eval_outcomes, top_k=top_k),
+        "temporal_packet_metrics": compute_eval_metrics(temporal_decisions, eval_outcomes, top_k=top_k),
+    }
+
+
+def render_temporal_feature_experiment_markdown(result: dict[str, Any]) -> str:
+    lines = ["# Temporal Feature Experiment", "", "## Coverage"]
+    lines.append(f"- packet-linked training count: `{result['temporal_feature_coverage']['packet_linked_training_count']}`")
+    lines.append(f"- legacy zero-filled count: `{result['temporal_feature_coverage']['legacy_zero_filled_count']}`")
+    lines.append(f"- temporal feature names: `{result['temporal_feature_names']}`")
+    lines.extend(["", "## Baseline Packet Metrics"])
+    for key, value in result.get("baseline_packet_metrics", {}).items():
+        lines.append(f"- {key}: `{value}`")
+    lines.extend(["", "## Temporal Packet Metrics"])
+    for key, value in result.get("temporal_packet_metrics", {}).items():
+        lines.append(f"- {key}: `{value}`")
+    return "\n".join(lines) + "\n"
 
 
 def render_time_aware_eval_markdown(result: dict[str, Any]) -> str:
@@ -549,10 +796,14 @@ def render_time_aware_eval_markdown(result: dict[str, Any]) -> str:
         f"- folds with relaxed refs > strict: `{result['cutoff_leakage_audit']['folds_with_relaxed_refs_gt_strict']}`"
     )
     lines.append(f"- max history incident gap: `{result['cutoff_leakage_audit']['max_history_incident_gap']}`")
+    lines.extend(["", "## Recency Compare"])
+    lines.append(f"- fold count: `{result['recency_compare']['fold_count']}`")
+    lines.append(f"- strict cutoff fold count: `{result['recency_compare']['strict_cutoff_fold_count']}`")
+    lines.append(f"- folds with recency delta: `{result['recency_compare']['folds_with_recency_delta']}`")
     lines.extend(["", "## Folds"])
     for fold in result.get("folds", []):
         lines.append(
             f"- `{fold['episode_id']}` packets={fold['eval_packet_ids']} train_rows={fold['train_row_count']} "
-            f"strict_history={fold['strict_history_incident_count']} relaxed_history={fold['relaxed_history_incident_count']}"
+            f"strict_history={fold['strict_history_incident_count']} recency_refs={fold['recency_retrieval_ref_count']} relaxed_history={fold['relaxed_history_incident_count']} recency_delta={fold['recency_delta']}"
         )
     return "\n".join(lines) + "\n"

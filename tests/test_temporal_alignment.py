@@ -2,9 +2,12 @@ import json
 import unittest
 from pathlib import Path
 
+from fixit_ai.retrieval_index import build_retrieval_index, search_retrieval_index
 from fixit_ai.temporal_alignment import (
     build_episode_index,
+    build_episode_index_from_records,
     build_temporal_alignment_summary,
+    build_temporal_feature_experiment,
     build_temporal_lineage,
     build_temporal_overlay_summary,
     build_temporal_overlays,
@@ -117,6 +120,111 @@ class TemporalAlignmentTests(unittest.TestCase):
         self.assertGreater(result["cutoff_leakage_audit"]["folds_with_relaxed_history_gt_strict"], 0)
         self.assertEqual(result["packet_metrics"]["teacher_escalation_rate"], 0.0)
         self.assertEqual(result["episode_metrics"]["episode_count"], 4)
+
+    def test_recency_aware_retrieval_prefers_newer_strict_history_when_semantics_tie(self):
+        incidents = [
+            {
+                "incident_id": "inc_old",
+                "service": "svc-a",
+                "operation": "POST /checkout",
+                "summary": "db timeout on order lookup",
+                "severity": "severe",
+                "recommended_action": "page_owner",
+                "tags": ["db", "timeout"],
+                "derived_ts_end": "2026-04-16T10:00:00Z",
+            },
+            {
+                "incident_id": "inc_new",
+                "service": "svc-a",
+                "operation": "POST /checkout",
+                "summary": "db timeout on order lookup",
+                "severity": "severe",
+                "recommended_action": "page_owner",
+                "tags": ["db", "timeout"],
+                "derived_ts_end": "2026-04-16T11:50:00Z",
+            },
+        ]
+        packet = {
+            "packet_id": "ipk_test",
+            "service": "svc-a",
+            "operation": "POST /checkout",
+            "ts_start": "2026-04-16T12:00:00Z",
+            "logs": {"top_templates": [{"template": "db timeout on order lookup"}]},
+            "traces": {"status_message": "db timeout on order lookup"},
+        }
+        index = build_retrieval_index(incidents)
+        ranked = search_retrieval_index(packet, index, top_k=2, reference_ts=packet["ts_start"], recency_half_life_minutes=60)
+        self.assertEqual(ranked[0]["incident_id"], "inc_new")
+        self.assertGreater(ranked[0]["similarity_score"], ranked[1]["similarity_score"])
+
+    def test_time_aware_eval_reports_recency_compare(self):
+        result = run_time_aware_historical_eval(ROOT)
+        self.assertIn("recency_compare", result)
+        self.assertEqual(result["recency_compare"]["fold_count"], 4)
+        self.assertGreater(result["recency_compare"]["folds_with_recency_delta"], 0)
+        self.assertEqual(result["recency_compare"]["strict_cutoff_fold_count"], 4)
+
+    def test_temporal_feature_experiment_reports_coverage_and_compare(self):
+        result = build_temporal_feature_experiment(ROOT)
+        self.assertEqual(result["temporal_feature_coverage"]["packet_linked_training_count"], 10)
+        self.assertEqual(result["temporal_feature_coverage"]["legacy_zero_filled_count"], 6)
+        self.assertIn("same_service_recent_packet_count", result["temporal_feature_names"])
+        self.assertIn("baseline_packet_metrics", result)
+        self.assertIn("temporal_packet_metrics", result)
+        self.assertEqual(result["baseline_packet_metrics"]["severe_recall"], 1.0)
+        self.assertEqual(result["temporal_packet_metrics"]["severe_recall"], 1.0)
+        self.assertEqual(result["fold_count"], 4)
+
+    def test_heuristic_episode_grouping_clusters_unbacked_related_packets_but_keeps_bounds(self):
+        packets = [
+            {
+                "packet_id": "ipk_h001",
+                "service": "svc-a",
+                "operation": "POST /checkout",
+                "ts_start": "2026-04-16T12:00:00Z",
+                "ts_end": "2026-04-16T12:05:00Z",
+                "logs": {"top_templates": [{"template": "db timeout on order lookup"}]},
+                "traces": {"status_message": "db timeout on order lookup"},
+            },
+            {
+                "packet_id": "ipk_h002",
+                "service": "svc-a",
+                "operation": "POST /checkout",
+                "ts_start": "2026-04-16T12:10:00Z",
+                "ts_end": "2026-04-16T12:15:00Z",
+                "logs": {"top_templates": [{"template": "db timeout on order write"}]},
+                "traces": {"status_message": "db timeout on order write"},
+            },
+            {
+                "packet_id": "ipk_h003",
+                "service": "svc-a",
+                "operation": "POST /checkout",
+                "ts_start": "2026-04-16T14:30:00Z",
+                "ts_end": "2026-04-16T14:35:00Z",
+                "logs": {"top_templates": [{"template": "db timeout on order lookup"}]},
+                "traces": {"status_message": "db timeout on order lookup"},
+            },
+            {
+                "packet_id": "ipk_h004",
+                "service": "svc-b",
+                "operation": "POST /checkout",
+                "ts_start": "2026-04-16T12:12:00Z",
+                "ts_end": "2026-04-16T12:17:00Z",
+                "logs": {"top_templates": [{"template": "db timeout on order lookup"}]},
+                "traces": {"status_message": "db timeout on order lookup"},
+            },
+        ]
+        episodes = build_episode_index_from_records(packets, incident_overlays=[])
+        by_id = {item["episode_id"]: item for item in episodes}
+
+        self.assertEqual(len(episodes), 3)
+        heuristic = by_id["ep_heuristic_svc_a_post_checkout_001"]
+        self.assertEqual(heuristic["packet_ids"], ["ipk_h001", "ipk_h002"])
+        self.assertEqual(heuristic["episode_source"], "heuristic_packet_cluster")
+        self.assertEqual(heuristic["episode_start_ts"], "2026-04-16T12:00:00Z")
+        self.assertEqual(heuristic["episode_end_ts"], "2026-04-16T12:15:00Z")
+        self.assertEqual(by_id["ep_heuristic_svc_a_post_checkout_002"]["packet_ids"], ["ipk_h003"])
+        self.assertEqual(by_id["ep_heuristic_svc_b_post_checkout_001"]["packet_ids"], ["ipk_h004"])
 
 
 if __name__ == "__main__":

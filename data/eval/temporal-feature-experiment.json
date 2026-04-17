@@ -1,0 +1,26 @@
+{
+  "fold_count": 4,
+  "temporal_feature_names": [
+    "same_service_recent_packet_count",
+    "same_service_recent_error_packet_count",
+    "same_service_prev_gap_inverse"
+  ],
+  "temporal_feature_coverage": {
+    "packet_linked_training_count": 10,
+    "legacy_zero_filled_count": 6
+  },
+  "baseline_packet_metrics": {
+    "severe_recall": 1.0,
+    "top_k_precision": 1.0,
+    "teacher_escalation_rate": 0.0,
+    "missed_severe_count": 0,
+    "missed_severe_packets": []
+  },
+  "temporal_packet_metrics": {
+    "severe_recall": 1.0,
+    "top_k_precision": 1.0,
+    "teacher_escalation_rate": 0.0,
+    "missed_severe_count": 0,
+    "missed_severe_packets": []
+  }
+}

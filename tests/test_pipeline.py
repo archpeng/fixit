@@ -198,6 +198,9 @@ class AlertIntelligencePipelineTests(unittest.TestCase):
             "blast_radius_score",
             "similar_severe_score",
             "recent_deploy",
+            "same_service_recent_packet_count",
+            "same_service_recent_error_packet_count",
+            "same_service_prev_gap_inverse",
         })
 
 

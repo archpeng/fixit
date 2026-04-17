@@ -4,6 +4,12 @@ import math
 from dataclasses import dataclass
 from typing import Iterable
 
+TEMPORAL_FEATURE_NAMES = [
+    "same_service_recent_packet_count",
+    "same_service_recent_error_packet_count",
+    "same_service_prev_gap_inverse",
+]
+
 FEATURE_NAMES = [
     "error_rate_delta",
     "p95_delta",
@@ -16,6 +22,7 @@ FEATURE_NAMES = [
     "blast_radius_score",
     "similar_severe_score",
     "recent_deploy",
+    *TEMPORAL_FEATURE_NAMES,
 ]
 
 LABEL_SOURCE_WEIGHTS = {
@@ -41,7 +48,11 @@ def _sample_weight(row: dict) -> float:
     return row.get("sample_weight", LABEL_SOURCE_WEIGHTS.get(row.get("label_source"), 0.5))
 
 
-def extract_packet_features(packet: dict, retrieval_refs: Iterable[dict]) -> dict[str, float]:
+def extract_packet_features(
+    packet: dict,
+    retrieval_refs: Iterable[dict],
+    temporal_context: dict[str, float] | None = None,
+) -> dict[str, float]:
     metrics = packet.get("metrics", {})
     templates = packet.get("logs", {}).get("top_templates", [])
     top_novelty = max((item.get("novelty", 0.0) for item in templates), default=0.0)
@@ -52,6 +63,7 @@ def extract_packet_features(packet: dict, retrieval_refs: Iterable[dict]) -> dic
     )
     score_max = max(packet.get("rules", {}).get("scores", {}).values(), default=0.0)
 
+    temporal_context = temporal_context or {}
     return {
         "error_rate_delta": min(metrics.get("error_rate_delta", 0.0) / 0.20, 1.0),
         "p95_delta": min(metrics.get("p95_delta", 0.0), 1.0),
@@ -64,6 +76,9 @@ def extract_packet_features(packet: dict, retrieval_refs: Iterable[dict]) -> dic
         "blast_radius_score": min(packet.get("topology", {}).get("blast_radius_score", 0.0), 1.0),
         "similar_severe_score": min(severe_similarity, 1.0),
         "recent_deploy": 1.0 if packet.get("history", {}).get("recent_deploy") else 0.0,
+        "same_service_recent_packet_count": min(temporal_context.get("same_service_recent_packet_count", 0.0), 1.0),
+        "same_service_recent_error_packet_count": min(temporal_context.get("same_service_recent_error_packet_count", 0.0), 1.0),
+        "same_service_prev_gap_inverse": min(temporal_context.get("same_service_prev_gap_inverse", 0.0), 1.0),
     }
 
 
@@ -102,11 +117,17 @@ def _top_feature_contributions(model: StudentModel, features: dict[str, float], 
     return [f"{name}={features[name]:.2f}" for name, _ in top]
 
 
-def predict_packets(model: StudentModel, packets: list[dict], retrieval_by_packet: dict[str, list[dict]]) -> list[dict]:
+def predict_packets(
+    model: StudentModel,
+    packets: list[dict],
+    retrieval_by_packet: dict[str, list[dict]],
+    temporal_context_by_packet: dict[str, dict[str, float]] | None = None,
+) -> list[dict]:
     scored: list[dict] = []
+    temporal_context_by_packet = temporal_context_by_packet or {}
     for packet in packets:
         refs = retrieval_by_packet.get(packet["packet_id"], [])
-        features = extract_packet_features(packet, refs)
+        features = extract_packet_features(packet, refs, temporal_context_by_packet.get(packet["packet_id"]))
         score = model.predict_proba(features)
         novelty_score = max(features["template_novelty_max"], 1.0 - features["similar_severe_score"])
         confidence = abs(score - 0.5) * 2.0

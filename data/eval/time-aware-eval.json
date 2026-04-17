@@ -20,6 +20,11 @@
     "folds_with_relaxed_refs_gt_strict": 4,
     "max_history_incident_gap": 4
   },
+  "recency_compare": {
+    "fold_count": 4,
+    "strict_cutoff_fold_count": 4,
+    "folds_with_recency_delta": 1
+  },
   "folds": [
     {
       "episode_id": "ep_inc-compile-500",
@@ -34,7 +39,9 @@
       "strict_history_incident_count": 0,
       "relaxed_history_incident_count": 4,
       "strict_retrieval_ref_count": 0,
-      "relaxed_retrieval_ref_count": 12
+      "recency_retrieval_ref_count": 0,
+      "relaxed_retrieval_ref_count": 12,
+      "recency_delta": false
     },
     {
       "episode_id": "ep_inc-compile-warmup",
@@ -47,7 +54,9 @@
       "strict_history_incident_count": 0,
       "relaxed_history_incident_count": 4,
       "strict_retrieval_ref_count": 0,
-      "relaxed_retrieval_ref_count": 6
+      "recency_retrieval_ref_count": 0,
+      "relaxed_retrieval_ref_count": 6,
+      "recency_delta": false
     },
     {
       "episode_id": "ep_inc-queue-depth",
@@ -59,7 +68,9 @@
       "strict_history_incident_count": 0,
       "relaxed_history_incident_count": 4,
       "strict_retrieval_ref_count": 0,
-      "relaxed_retrieval_ref_count": 3
+      "recency_retrieval_ref_count": 0,
+      "relaxed_retrieval_ref_count": 3,
+      "recency_delta": false
     },
     {
       "episode_id": "ep_inc-other-service",
@@ -73,7 +84,9 @@
       "strict_history_incident_count": 2,
       "relaxed_history_incident_count": 4,
       "strict_retrieval_ref_count": 6,
-      "relaxed_retrieval_ref_count": 9
+      "recency_retrieval_ref_count": 6,
+      "relaxed_retrieval_ref_count": 9,
+      "recency_delta": true
     }
   ]
 }

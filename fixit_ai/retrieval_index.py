@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import math
 import re
+from datetime import datetime
 from collections import Counter, defaultdict
 from typing import Iterable
 
@@ -42,7 +43,31 @@ def build_retrieval_index(incidents: Iterable[dict]) -> dict:
     return {"docs": docs, "idf": idf, "size": size}
 
 
-def search_retrieval_index(packet: dict, index: dict, top_k: int = 3) -> list[dict]:
+def _parse_ts(value: str | None) -> datetime | None:
+    if not value:
+        return None
+    return datetime.fromisoformat(value.replace("Z", "+00:00"))
+
+
+def _recency_bonus(reference_ts: str | None, incident_ts: str | None, half_life_minutes: int | None) -> float:
+    if not reference_ts or not incident_ts or not half_life_minutes or half_life_minutes <= 0:
+        return 0.0
+    ref = _parse_ts(reference_ts)
+    inc = _parse_ts(incident_ts)
+    if not ref or not inc or inc > ref:
+        return 0.0
+    gap_minutes = max((ref - inc).total_seconds() / 60.0, 0.0)
+    decay = math.exp(-math.log(2) * (gap_minutes / half_life_minutes))
+    return 0.20 * decay
+
+
+def search_retrieval_index(
+    packet: dict,
+    index: dict,
+    top_k: int = 3,
+    reference_ts: str | None = None,
+    recency_half_life_minutes: int | None = None,
+) -> list[dict]:
     packet_counter = Counter(_packet_tokens(packet))
     results = []
     for doc in index.get("docs", []):
@@ -52,7 +77,8 @@ def search_retrieval_index(packet: dict, index: dict, top_k: int = 3) -> list[di
         service_bonus = 0.30 if incident.get("service") == packet.get("service") else 0.0
         operation_bonus = 0.25 if incident.get("operation") == packet.get("operation") else 0.0
         severe_bonus = 0.10 if incident.get("severity") == "severe" and matched_terms else 0.0
-        score = overlap_score + service_bonus + operation_bonus + severe_bonus
+        recency_bonus = _recency_bonus(reference_ts, incident.get("derived_ts_end"), recency_half_life_minutes)
+        score = overlap_score + service_bonus + operation_bonus + severe_bonus + recency_bonus
         results.append(
             {
                 "incident_id": incident["incident_id"],
@@ -61,6 +87,7 @@ def search_retrieval_index(packet: dict, index: dict, top_k: int = 3) -> list[di
                 "recommended_action": incident.get("recommended_action", "observe"),
                 "summary": incident.get("summary", ""),
                 "matched_terms": matched_terms,
+                "recency_bonus": round(recency_bonus, 4),
             }
         )
     return sorted(results, key=lambda item: item["similarity_score"], reverse=True)[:top_k]

@@ -14,8 +14,13 @@
 - folds with relaxed refs > strict: `4`
 - max history incident gap: `4`
 
+## Recency Compare
+- fold count: `4`
+- strict cutoff fold count: `4`
+- folds with recency delta: `1`
+
 ## Folds
-- `ep_inc-compile-500` packets=['ipk_w001', 'ipk_w004', 'ipk_w006', 'ipk_w009'] train_rows=6 strict_history=0 relaxed_history=4
-- `ep_inc-compile-warmup` packets=['ipk_w002', 'ipk_w007'] train_rows=6 strict_history=0 relaxed_history=4
-- `ep_inc-queue-depth` packets=['ipk_w005'] train_rows=8 strict_history=0 relaxed_history=4
-- `ep_inc-other-service` packets=['ipk_w010', 'ipk_w011', 'ipk_w012'] train_rows=12 strict_history=2 relaxed_history=4
+- `ep_inc-compile-500` packets=['ipk_w001', 'ipk_w004', 'ipk_w006', 'ipk_w009'] train_rows=6 strict_history=0 recency_refs=0 relaxed_history=4 recency_delta=False
+- `ep_inc-compile-warmup` packets=['ipk_w002', 'ipk_w007'] train_rows=6 strict_history=0 recency_refs=0 relaxed_history=4 recency_delta=False
+- `ep_inc-queue-depth` packets=['ipk_w005'] train_rows=8 strict_history=0 recency_refs=0 relaxed_history=4 recency_delta=False
+- `ep_inc-other-service` packets=['ipk_w010', 'ipk_w011', 'ipk_w012'] train_rows=12 strict_history=2 recency_refs=6 relaxed_history=4 recency_delta=True
