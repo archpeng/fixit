@@ -1,8 +1,11 @@
 # fixit Plan Packs
 
-## No Active Family
+## Active Family
 
-当前 `docs/plan/` 中的所有 family 都已 closeout。
+- `ALERT_INTELLIGENCE_DATA_AND_TEACHER_ACCUMULATION_DAILY_VOLUME_AND_SCHEMA_RESIDUAL`
+  - `docs/plan/ALERT_INTELLIGENCE_DATA_AND_TEACHER_ACCUMULATION_DAILY_VOLUME_AND_SCHEMA_RESIDUAL_PLAN.md`
+  - `docs/plan/ALERT_INTELLIGENCE_DATA_AND_TEACHER_ACCUMULATION_DAILY_VOLUME_AND_SCHEMA_RESIDUAL_STATUS.md`
+  - `docs/plan/ALERT_INTELLIGENCE_DATA_AND_TEACHER_ACCUMULATION_DAILY_VOLUME_AND_SCHEMA_RESIDUAL_WORKSET.md`
 
 ## Closed Current Family
 
@@ -65,8 +68,9 @@
 
 ## Purpose
 
-当前 `docs/plan/` 承载六段已经完成的连续目标：
+当前 `docs/plan/` 承载一条 active daily residual family 与六段已经完成的连续目标：
 
+- active `data-and-teacher-accumulation-daily-volume-and-schema-residual`：围绕 remaining reviewed gap `3` 与 schema real-day accumulation 继续做 bounded daily execution。
 - closed `data-and-teacher-accumulation-stability-and-volume-residual`：围绕 residual truth 收口 reviewed teacher volume ceiling、bounded packet supply、schema distinct-day progress、family recheck 与 successor routing。
 - closed `data-and-teacher-accumulation-followup`：把下一阶段推荐运行架构压成可执行 runtime family，并完成 allowlist runtime、teacher throughput、write-back audit、append-only schema checkpoint 与 closeout。
 - predecessor `foundation`：证明 MVP shadow foundation 能跑通并已完成 closeout。
@@ -82,6 +86,6 @@
 
 ## Control Rule
 
-- 当前没有 active family。
+- 当前 active family 默认 handoff 给 `execute-plan`。
 - closed families 不得继续续写。
-- 若继续下一阶段，默认先回 `plan-creator`，为 `ALERT_INTELLIGENCE_DATA_AND_TEACHER_ACCUMULATION_DAILY_VOLUME_AND_SCHEMA_RESIDUAL` 建新 pack。
+- `DV1` 关闭前，不得跳到 `DV2` / `DV3`。
