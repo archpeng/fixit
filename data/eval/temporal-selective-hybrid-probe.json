@@ -1,0 +1,116 @@
+{
+  "fold_count": 4,
+  "compare": {
+    "packets_selected_for_hybrid": 5,
+    "packets_with_selected_score_delta_gt_raw": 5,
+    "packets_with_selected_confidence_delta_gt_raw": 0,
+    "folds_with_selective_routing": 3,
+    "folds_with_top_hit_overlap": 3,
+    "max_selected_top_score_delta": 0.05,
+    "anti_leakage_violation_count": 0
+  },
+  "raw_packet_metrics": {
+    "severe_recall": 1.0,
+    "top_k_precision": 1.0,
+    "teacher_escalation_rate": 0.0,
+    "missed_severe_count": 0,
+    "missed_severe_packets": []
+  },
+  "selective_packet_metrics": {
+    "severe_recall": 1.0,
+    "top_k_precision": 1.0,
+    "teacher_escalation_rate": 0.0,
+    "missed_severe_count": 0,
+    "missed_severe_packets": []
+  },
+  "raw_episode_metrics": {
+    "episode_count": 4,
+    "severe_episode_recall": 1.0,
+    "top_k_episode_precision": 0.3333,
+    "missed_severe_episode_count": 0,
+    "missed_severe_episode_ids": []
+  },
+  "selective_episode_metrics": {
+    "episode_count": 4,
+    "severe_episode_recall": 1.0,
+    "top_k_episode_precision": 0.3333,
+    "missed_severe_episode_count": 0,
+    "missed_severe_episode_ids": []
+  },
+  "folds": [
+    {
+      "episode_id": "ep_inc-compile-500",
+      "eval_packet_ids": [
+        "ipk_w001",
+        "ipk_w004",
+        "ipk_w006",
+        "ipk_w009"
+      ],
+      "raw_packet_prior_doc_count": 0,
+      "selective_hybrid_context_prior_doc_count": 0,
+      "selected_hybrid_packet_count": 0,
+      "selected_score_delta_packet_count": 0,
+      "selected_confidence_delta_packet_count": 0,
+      "raw_retrieval_ref_count": 0,
+      "selective_retrieval_ref_count": 0,
+      "top_hit_overlap": false,
+      "top_hit_overlap_count": 0,
+      "max_selected_top_score_delta": 0.0,
+      "anti_leakage_violation_count": 0
+    },
+    {
+      "episode_id": "ep_inc-compile-warmup",
+      "eval_packet_ids": [
+        "ipk_w002",
+        "ipk_w007"
+      ],
+      "raw_packet_prior_doc_count": 1,
+      "selective_hybrid_context_prior_doc_count": 1,
+      "selected_hybrid_packet_count": 2,
+      "selected_score_delta_packet_count": 2,
+      "selected_confidence_delta_packet_count": 0,
+      "raw_retrieval_ref_count": 2,
+      "selective_retrieval_ref_count": 2,
+      "top_hit_overlap": true,
+      "top_hit_overlap_count": 2,
+      "max_selected_top_score_delta": 0.05,
+      "anti_leakage_violation_count": 0
+    },
+    {
+      "episode_id": "ep_inc-queue-depth",
+      "eval_packet_ids": [
+        "ipk_w005"
+      ],
+      "raw_packet_prior_doc_count": 3,
+      "selective_hybrid_context_prior_doc_count": 2,
+      "selected_hybrid_packet_count": 1,
+      "selected_score_delta_packet_count": 1,
+      "selected_confidence_delta_packet_count": 0,
+      "raw_retrieval_ref_count": 3,
+      "selective_retrieval_ref_count": 2,
+      "top_hit_overlap": true,
+      "top_hit_overlap_count": 1,
+      "max_selected_top_score_delta": 0.05,
+      "anti_leakage_violation_count": 0
+    },
+    {
+      "episode_id": "ep_inc-other-service",
+      "eval_packet_ids": [
+        "ipk_w010",
+        "ipk_w011",
+        "ipk_w012"
+      ],
+      "raw_packet_prior_doc_count": 7,
+      "selective_hybrid_context_prior_doc_count": 3,
+      "selected_hybrid_packet_count": 2,
+      "selected_score_delta_packet_count": 2,
+      "selected_confidence_delta_packet_count": 0,
+      "raw_retrieval_ref_count": 9,
+      "selective_retrieval_ref_count": 9,
+      "top_hit_overlap": true,
+      "top_hit_overlap_count": 3,
+      "max_selected_top_score_delta": 0.05,
+      "anti_leakage_violation_count": 0
+    }
+  ]
+}

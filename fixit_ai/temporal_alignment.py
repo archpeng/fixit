@@ -1746,6 +1746,209 @@ def build_temporal_hybrid_context_probe(root: Path | str) -> dict[str, Any]:
     }
 
 
+def build_temporal_selective_hybrid_probe(root: Path | str) -> dict[str, Any]:
+    root = Path(root)
+    overlays = build_temporal_overlays(root)
+    thresholds = read_yaml(root / "configs/thresholds.yaml")
+    schemas = SchemaBundle(root / "schemas")
+    top_k = thresholds["student"]["evaluation"]["top_k"]
+    candidate_limit = max(top_k * 2, top_k)
+    packets = read_jsonl(root / "data/samples/incident-packets.jsonl")
+    packet_by_id = {packet["packet_id"]: packet for packet in packets if packet.get("packet_id")}
+    outcomes = overlays["outcomes"]
+    episodes = build_episode_index(root, overlays=overlays)
+    incident_pool = [
+        row
+        for row in overlays["historical_incidents"]
+        if row.get("cutoff_safe") and row.get("timestamp_quality") in {"exact_window_time", "exact_time_inherited"}
+    ]
+    raw_prior_pool = build_temporal_prior_catalog(root, overlays=overlays, episodes=episodes, packets=packets)
+    all_context_priors = build_episode_context_priors(raw_prior_pool)
+
+    raw_decisions: list[dict[str, Any]] = []
+    selective_decisions: list[dict[str, Any]] = []
+    eval_outcomes: list[dict[str, Any]] = []
+    folds: list[dict[str, Any]] = []
+
+    for episode in episodes:
+        episode_id = episode["episode_id"]
+        episode_start_ts = episode.get("episode_start_ts")
+        eval_packet_ids = set(episode.get("packet_ids", []))
+        eval_packets = [packet_by_id[packet_id] for packet_id in episode.get("packet_ids", []) if packet_id in packet_by_id]
+
+        training_rows = []
+        for row in overlays["training_examples"]:
+            quality = row.get("timestamp_quality")
+            row_packet_id = row.get("packet_id")
+            if quality == "unknown_time":
+                training_rows.append(row)
+                continue
+            if not row.get("cutoff_safe"):
+                continue
+            if row_packet_id in eval_packet_ids:
+                continue
+            if row.get("derived_ts_end") and episode_start_ts and row["derived_ts_end"] < episode_start_ts:
+                training_rows.append(row)
+
+        boundary_incidents, _, boundary_incident_violations = _admissible_history_rows(
+            incident_pool,
+            episode_start_ts,
+            eval_packet_ids,
+            episode_id,
+            inclusive=True,
+        )
+        boundary_priors, _, boundary_prior_violations = _admissible_history_rows(
+            raw_prior_pool,
+            episode_start_ts,
+            eval_packet_ids,
+            episode_id,
+            inclusive=True,
+        )
+        context_priors = build_episode_context_priors(boundary_priors)
+
+        raw_history = [*boundary_incidents, *boundary_priors]
+        context_history = [*boundary_incidents, *context_priors]
+
+        model, _ = train_student_model(training_rows, thresholds)
+        raw_index = build_retrieval_index(raw_history)
+        context_index = build_retrieval_index(context_history)
+        raw_candidates = {
+            packet["packet_id"]: search_retrieval_index(
+                packet,
+                raw_index,
+                top_k=candidate_limit,
+                reference_ts=packet.get("ts_start"),
+                recency_half_life_minutes=60,
+            )
+            for packet in eval_packets
+        }
+        context_candidates = {
+            packet["packet_id"]: search_retrieval_index(
+                packet,
+                context_index,
+                top_k=candidate_limit,
+                reference_ts=packet.get("ts_start"),
+                recency_half_life_minutes=60,
+            )
+            for packet in eval_packets
+        }
+        raw_retrieval = {packet_id: refs[:top_k] for packet_id, refs in raw_candidates.items()}
+        hybrid_retrieval = {
+            packet_id: _merge_hybrid_retrieval(raw_candidates.get(packet_id, []), context_candidates.get(packet_id, []), top_k=top_k)
+            for packet_id in raw_candidates
+        }
+
+        raw_scores = predict_packets(model, eval_packets, raw_retrieval)
+        hybrid_scores = predict_packets(model, eval_packets, hybrid_retrieval)
+        raw_score_by_packet = {item["packet_id"]: item for item in raw_scores}
+        hybrid_score_by_packet = {item["packet_id"]: item for item in hybrid_scores}
+
+        selective_retrieval: dict[str, list[dict[str, Any]]] = {}
+        selective_scores: list[dict[str, Any]] = []
+        selected_hybrid_packet_count = 0
+        selected_score_delta_packet_count = 0
+        selected_confidence_delta_packet_count = 0
+        max_selected_top_score_delta = 0.0
+
+        for packet in eval_packets:
+            packet_id = packet["packet_id"]
+            raw_top = next(iter(raw_retrieval.get(packet_id, [])), None)
+            hybrid_top = next(iter(hybrid_retrieval.get(packet_id, [])), None)
+            use_hybrid = bool(
+                raw_top
+                and hybrid_top
+                and (hybrid_top.get("agreement_bonus", 0.0) > 0)
+                and (_retrieval_group_key(raw_top) == _retrieval_group_key(hybrid_top))
+            )
+            if use_hybrid:
+                selected_hybrid_packet_count += 1
+                selective_retrieval[packet_id] = hybrid_retrieval.get(packet_id, [])
+                selective_scores.append(hybrid_score_by_packet[packet_id])
+                top_score_delta = round((hybrid_top or {}).get("similarity_score", 0.0) - (raw_top or {}).get("similarity_score", 0.0), 4)
+                if top_score_delta > 0:
+                    selected_score_delta_packet_count += 1
+                if hybrid_score_by_packet[packet_id]["student_confidence"] > raw_score_by_packet[packet_id]["student_confidence"]:
+                    selected_confidence_delta_packet_count += 1
+                max_selected_top_score_delta = max(max_selected_top_score_delta, top_score_delta)
+            else:
+                selective_retrieval[packet_id] = raw_retrieval.get(packet_id, [])
+                selective_scores.append(raw_score_by_packet[packet_id])
+
+        raw_fold_decisions = build_triage_decisions(eval_packets, raw_retrieval, raw_scores, [], thresholds, schemas)
+        selective_fold_decisions = build_triage_decisions(eval_packets, selective_retrieval, selective_scores, [], thresholds, schemas)
+        fold_outcomes = [row for row in outcomes if row.get("packet_id") in eval_packet_ids]
+        eval_outcomes.extend(fold_outcomes)
+        raw_decisions.extend(raw_fold_decisions)
+        selective_decisions.extend(selective_fold_decisions)
+
+        top_hit_overlap_count = 0
+        for packet in eval_packets:
+            packet_id = packet["packet_id"]
+            raw_top = next(iter(raw_retrieval.get(packet_id, [])), None)
+            selective_top = next(iter(selective_retrieval.get(packet_id, [])), None)
+            raw_key = _retrieval_group_key(raw_top or {}) if raw_top else None
+            selective_key = _retrieval_group_key(selective_top or {}) if selective_top else None
+            if raw_key and selective_key and raw_key == selective_key:
+                top_hit_overlap_count += 1
+
+        folds.append(
+            {
+                "episode_id": episode_id,
+                "eval_packet_ids": sorted(eval_packet_ids),
+                "raw_packet_prior_doc_count": len(boundary_priors),
+                "selective_hybrid_context_prior_doc_count": len(context_priors),
+                "selected_hybrid_packet_count": selected_hybrid_packet_count,
+                "selected_score_delta_packet_count": selected_score_delta_packet_count,
+                "selected_confidence_delta_packet_count": selected_confidence_delta_packet_count,
+                "raw_retrieval_ref_count": sum(len(item) for item in raw_retrieval.values()),
+                "selective_retrieval_ref_count": sum(len(item) for item in selective_retrieval.values()),
+                "top_hit_overlap": top_hit_overlap_count > 0,
+                "top_hit_overlap_count": top_hit_overlap_count,
+                "max_selected_top_score_delta": max_selected_top_score_delta,
+                "anti_leakage_violation_count": boundary_incident_violations + boundary_prior_violations,
+            }
+        )
+
+    return {
+        "fold_count": len(episodes),
+        "compare": {
+            "packets_selected_for_hybrid": sum(fold["selected_hybrid_packet_count"] for fold in folds),
+            "packets_with_selected_score_delta_gt_raw": sum(fold["selected_score_delta_packet_count"] for fold in folds),
+            "packets_with_selected_confidence_delta_gt_raw": sum(
+                fold["selected_confidence_delta_packet_count"] for fold in folds
+            ),
+            "folds_with_selective_routing": sum(1 for fold in folds if fold["selected_hybrid_packet_count"] > 0),
+            "folds_with_top_hit_overlap": sum(1 for fold in folds if fold["top_hit_overlap"]),
+            "max_selected_top_score_delta": max((fold["max_selected_top_score_delta"] for fold in folds), default=0.0),
+            "anti_leakage_violation_count": sum(fold["anti_leakage_violation_count"] for fold in folds),
+        },
+        "raw_packet_metrics": compute_eval_metrics(raw_decisions, eval_outcomes, top_k=top_k),
+        "selective_packet_metrics": compute_eval_metrics(selective_decisions, eval_outcomes, top_k=top_k),
+        "raw_episode_metrics": _episode_metrics(raw_decisions, eval_outcomes, episodes, top_k=top_k),
+        "selective_episode_metrics": _episode_metrics(selective_decisions, eval_outcomes, episodes, top_k=top_k),
+        "folds": folds,
+    }
+
+
+def render_temporal_selective_hybrid_probe_markdown(result: dict[str, Any]) -> str:
+    lines = ["# Temporal Selective Hybrid Probe", "", "## Compare"]
+    lines.append(f"- fold count: `{result['fold_count']}`")
+    for key, value in result.get("compare", {}).items():
+        lines.append(f"- {key}: `{value}`")
+    lines.extend(["", "## Raw Packet Metrics"])
+    for key, value in result.get("raw_packet_metrics", {}).items():
+        lines.append(f"- {key}: `{value}`")
+    lines.extend(["", "## Selective Packet Metrics"])
+    for key, value in result.get("selective_packet_metrics", {}).items():
+        lines.append(f"- {key}: `{value}`")
+    lines.extend(["", "## Folds"])
+    for fold in result.get("folds", []):
+        lines.append(
+            f"- `{fold['episode_id']}` packets={fold['eval_packet_ids']} raw_priors={fold['raw_packet_prior_doc_count']} selective_context_priors={fold['selective_hybrid_context_prior_doc_count']} selected_hybrid_packets={fold['selected_hybrid_packet_count']} score_delta_packets={fold['selected_score_delta_packet_count']} confidence_delta_packets={fold['selected_confidence_delta_packet_count']} top_hit_overlap={fold['top_hit_overlap']} max_selected_top_score_delta={fold['max_selected_top_score_delta']} leakage_violations={fold['anti_leakage_violation_count']}"
+        )
+    return "\n".join(lines) + "\n"
+
+
 def render_temporal_hybrid_context_probe_markdown(result: dict[str, Any]) -> str:
     lines = ["# Temporal Hybrid Context Probe", "", "## Compare"]
     lines.append(f"- hybrid context prior count: `{result['hybrid_context_prior_count']}`")

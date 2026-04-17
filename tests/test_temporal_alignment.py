@@ -13,6 +13,7 @@ from fixit_ai.temporal_alignment import (
     build_temporal_feature_experiment,
     build_temporal_hybrid_context_probe,
     build_temporal_lineage,
+    build_temporal_selective_hybrid_probe,
     build_temporal_overlay_summary,
     build_temporal_overlays,
     build_temporal_prior_catalog,
@@ -263,6 +264,18 @@ class TemporalAlignmentTests(unittest.TestCase):
         self.assertGreater(by_id["ep_inc-other-service"]["hybrid_score_delta_packet_count"], 0)
         self.assertIn("raw_packet_metrics", result)
         self.assertIn("hybrid_packet_metrics", result)
+
+    def test_selective_hybrid_probe_reports_selected_packets_and_calibration_audit(self):
+        result = build_temporal_selective_hybrid_probe(ROOT)
+        self.assertEqual(result["fold_count"], 4)
+        self.assertGreater(result["compare"]["packets_selected_for_hybrid"], 0)
+        self.assertGreater(result["compare"]["packets_with_selected_score_delta_gt_raw"], 0)
+        self.assertGreater(result["compare"]["folds_with_selective_routing"], 0)
+        self.assertEqual(result["compare"]["anti_leakage_violation_count"], 0)
+        by_id = {item["episode_id"]: item for item in result["folds"]}
+        self.assertGreater(by_id["ep_inc-other-service"]["selected_hybrid_packet_count"], 0)
+        self.assertIn("raw_packet_metrics", result)
+        self.assertIn("selective_packet_metrics", result)
 
     def test_heuristic_episode_grouping_clusters_unbacked_related_packets_but_keeps_bounds(self):
         packets = [
