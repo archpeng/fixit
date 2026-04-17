@@ -1,0 +1,79 @@
+{
+  "episode_count": 4,
+  "packet_count": 10,
+  "packet_metrics": {
+    "severe_recall": 1.0,
+    "top_k_precision": 1.0,
+    "teacher_escalation_rate": 0.0,
+    "missed_severe_count": 0,
+    "missed_severe_packets": []
+  },
+  "episode_metrics": {
+    "episode_count": 4,
+    "severe_episode_recall": 1.0,
+    "top_k_episode_precision": 0.3333,
+    "missed_severe_episode_count": 0,
+    "missed_severe_episode_ids": []
+  },
+  "cutoff_leakage_audit": {
+    "folds_with_relaxed_history_gt_strict": 4,
+    "folds_with_relaxed_refs_gt_strict": 4,
+    "max_history_incident_gap": 4
+  },
+  "folds": [
+    {
+      "episode_id": "ep_inc-compile-500",
+      "eval_packet_ids": [
+        "ipk_w001",
+        "ipk_w004",
+        "ipk_w006",
+        "ipk_w009"
+      ],
+      "train_row_count": 6,
+      "unknown_time_train_row_count": 6,
+      "strict_history_incident_count": 0,
+      "relaxed_history_incident_count": 4,
+      "strict_retrieval_ref_count": 0,
+      "relaxed_retrieval_ref_count": 12
+    },
+    {
+      "episode_id": "ep_inc-compile-warmup",
+      "eval_packet_ids": [
+        "ipk_w002",
+        "ipk_w007"
+      ],
+      "train_row_count": 6,
+      "unknown_time_train_row_count": 6,
+      "strict_history_incident_count": 0,
+      "relaxed_history_incident_count": 4,
+      "strict_retrieval_ref_count": 0,
+      "relaxed_retrieval_ref_count": 6
+    },
+    {
+      "episode_id": "ep_inc-queue-depth",
+      "eval_packet_ids": [
+        "ipk_w005"
+      ],
+      "train_row_count": 8,
+      "unknown_time_train_row_count": 6,
+      "strict_history_incident_count": 0,
+      "relaxed_history_incident_count": 4,
+      "strict_retrieval_ref_count": 0,
+      "relaxed_retrieval_ref_count": 3
+    },
+    {
+      "episode_id": "ep_inc-other-service",
+      "eval_packet_ids": [
+        "ipk_w010",
+        "ipk_w011",
+        "ipk_w012"
+      ],
+      "train_row_count": 12,
+      "unknown_time_train_row_count": 6,
+      "strict_history_incident_count": 2,
+      "relaxed_history_incident_count": 4,
+      "strict_retrieval_ref_count": 6,
+      "relaxed_retrieval_ref_count": 9
+    }
+  ]
+}

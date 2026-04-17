@@ -1,13 +1,29 @@
 # fixit Plan Packs
 
-## Active Family
+## No Active Execute Family
+
+- current execute lane closed after `TEMPORAL_ALIGNMENT_AND_TIME_AWARE_EVAL_IMPLEMENTATION`
+- current alert-intelligence daily residual lane remains blocked by real next-date progression
+
+## Blocked Current Family
 
 - `ALERT_INTELLIGENCE_DATA_AND_TEACHER_ACCUMULATION_DAILY_VOLUME_AND_SCHEMA_RESIDUAL`
   - `docs/plan/ALERT_INTELLIGENCE_DATA_AND_TEACHER_ACCUMULATION_DAILY_VOLUME_AND_SCHEMA_RESIDUAL_PLAN.md`
   - `docs/plan/ALERT_INTELLIGENCE_DATA_AND_TEACHER_ACCUMULATION_DAILY_VOLUME_AND_SCHEMA_RESIDUAL_STATUS.md`
   - `docs/plan/ALERT_INTELLIGENCE_DATA_AND_TEACHER_ACCUMULATION_DAILY_VOLUME_AND_SCHEMA_RESIDUAL_WORKSET.md`
+  - current resume gate: wait for the next real distinct date before `DV2.S1_NEXT_DISTINCT_DATE_SCHEMA_PROGRESS_CHECKPOINT`
 
 ## Closed Current Family
+
+- `TEMPORAL_ALIGNMENT_AND_TIME_AWARE_EVAL_IMPLEMENTATION`
+  - `docs/plan/TEMPORAL_ALIGNMENT_AND_TIME_AWARE_EVAL_IMPLEMENTATION_PLAN.md`
+  - `docs/plan/TEMPORAL_ALIGNMENT_AND_TIME_AWARE_EVAL_IMPLEMENTATION_STATUS.md`
+  - `docs/plan/TEMPORAL_ALIGNMENT_AND_TIME_AWARE_EVAL_IMPLEMENTATION_WORKSET.md`
+  - `docs/plan/TEMPORAL_ALIGNMENT_AND_TIME_AWARE_EVAL_IMPLEMENTATION_CLOSEOUT_REVIEW.md`
+  - `docs/plan/TEMPORAL_ALIGNMENT_AND_TIME_AWARE_EVAL_IMPLEMENTATION_SUCCESSOR_ADMISSION.md`
+  - recommended successor: `TEMPORAL_ALIGNMENT_P1_RECENCY_AND_LIGHT_FEATURE_ENRICHMENT`
+
+## Closed Previous Family
 
 - `ALERT_INTELLIGENCE_DATA_AND_TEACHER_ACCUMULATION_STABILITY_AND_VOLUME_RESIDUAL`
   - `docs/plan/ALERT_INTELLIGENCE_DATA_AND_TEACHER_ACCUMULATION_STABILITY_AND_VOLUME_RESIDUAL_PLAN.md`
@@ -68,24 +84,24 @@
 
 ## Purpose
 
-当前 `docs/plan/` 承载一条 active daily residual family 与六段已经完成的连续目标：
+当前 `docs/plan/` 承载一个被真实日期阻塞的 alert-intelligence family，以及一个刚刚闭合的 temporal alignment P0 family。
 
-- active `data-and-teacher-accumulation-daily-volume-and-schema-residual`：围绕 remaining reviewed gap `3` 与 schema real-day accumulation 继续做 bounded daily execution。
-- closed `data-and-teacher-accumulation-stability-and-volume-residual`：围绕 residual truth 收口 reviewed teacher volume ceiling、bounded packet supply、schema distinct-day progress、family recheck 与 successor routing。
-- closed `data-and-teacher-accumulation-followup`：把下一阶段推荐运行架构压成可执行 runtime family，并完成 allowlist runtime、teacher throughput、write-back audit、append-only schema checkpoint 与 closeout。
-- predecessor `foundation`：证明 MVP shadow foundation 能跑通并已完成 closeout。
-- closed `hardening`：把 foundation 的 replay / retrieval / calibration / teacher / enrichment 残口压成新的 bounded successor，并已完成 closeout。
-- closed `small-model-upgrade-review`：对“是否进入本地小模型 student 实施”完成 readiness review，并给出 `not-yet` verdict。
-- closed `data-and-teacher-accumulation`：把 replay breadth / reviewed teacher volume / schema stability / multi-pilot evidence 压成真实代码、tests 和 artifacts，并给出 followup successor。
+- blocked `data-and-teacher-accumulation-daily-volume-and-schema-residual`：reviewed volume gate 已清掉，但 schema next-date checkpoint 仍需等待真实日期推进。
+- closed `TEMPORAL_ALIGNMENT_AND_TIME_AWARE_EVAL_IMPLEMENTATION`：已把 temporal lineage、derived temporal overlays、episode-aware split、time-aware eval 压成代码、tests、scripts、artifacts，并冻结了 P1 successor routing。
 
 ## Read Order
 
-1. 先读 `..._PLAN.md`：理解 bounded family、scope、workstreams、exit gate。
-2. 再读 `..._STATUS.md`：理解 current truth、active slice、blockers、next step。
-3. 最后读 `..._WORKSET.md`：按单一 active slice 推进，不要跳行并行扩 scope。
+1. 若要理解 temporal P0 closeout，先读：
+   - `TEMPORAL_ALIGNMENT_AND_TIME_AWARE_EVAL_IMPLEMENTATION_PLAN.md`
+   - `..._STATUS.md`
+   - `..._WORKSET.md`
+   - `..._CLOSEOUT_REVIEW.md`
+   - `..._SUCCESSOR_ADMISSION.md`
+2. 若要恢复 alert-intelligence 主线，再读 blocked daily residual family 的 `STATUS/WORKSET`。
 
 ## Control Rule
 
-- 当前 active family 默认 handoff 给 `execute-plan`。
+- 当前没有 active execute slice。
+- blocked family 只能在其真实外部 gate 满足后恢复。
 - closed families 不得继续续写。
-- `DV1` 关闭前，不得跳到 `DV2` / `DV3`。
+- 若继续 temporal P1，必须新开 successor family，而不是重开当前 closed pack。

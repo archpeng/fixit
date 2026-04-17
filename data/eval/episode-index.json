@@ -1,0 +1,62 @@
+{
+  "episodes": [
+    {
+      "episode_id": "ep_inc-compile-500",
+      "incident_id": "inc-compile-500",
+      "service": "g-crm-campaign",
+      "operation": "ADCService/Compile",
+      "packet_ids": [
+        "ipk_w001",
+        "ipk_w004",
+        "ipk_w006",
+        "ipk_w009"
+      ],
+      "episode_start_ts": "2026-04-16T11:25:00Z",
+      "episode_end_ts": "2026-04-16T12:10:00Z",
+      "episode_source": "historical_incident_source_packet_ids",
+      "timestamp_quality": "exact_time_inherited"
+    },
+    {
+      "episode_id": "ep_inc-compile-warmup",
+      "incident_id": "inc-compile-warmup",
+      "service": "g-crm-campaign",
+      "operation": "ADCService/Compile",
+      "packet_ids": [
+        "ipk_w002",
+        "ipk_w007"
+      ],
+      "episode_start_ts": "2026-04-16T11:30:00Z",
+      "episode_end_ts": "2026-04-16T12:00:00Z",
+      "episode_source": "historical_incident_source_packet_ids",
+      "timestamp_quality": "exact_time_inherited"
+    },
+    {
+      "episode_id": "ep_inc-queue-depth",
+      "incident_id": "inc-queue-depth",
+      "service": "g-crm-campaign",
+      "operation": "ADCService/Compile",
+      "packet_ids": [
+        "ipk_w005"
+      ],
+      "episode_start_ts": "2026-04-16T11:45:00Z",
+      "episode_end_ts": "2026-04-16T11:50:00Z",
+      "episode_source": "historical_incident_source_packet_ids",
+      "timestamp_quality": "exact_time_inherited"
+    },
+    {
+      "episode_id": "ep_inc-other-service",
+      "incident_id": "inc-other-service",
+      "service": "prod-hq-bff-service",
+      "operation": "POST /brand/detail",
+      "packet_ids": [
+        "ipk_w010",
+        "ipk_w011",
+        "ipk_w012"
+      ],
+      "episode_start_ts": "2026-04-16T12:10:00Z",
+      "episode_end_ts": "2026-04-16T12:25:00Z",
+      "episode_source": "historical_incident_source_packet_ids",
+      "timestamp_quality": "exact_time_inherited"
+    }
+  ]
+}

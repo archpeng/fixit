@@ -1,0 +1,22 @@
+{
+  "record_count": 52,
+  "counts_by_timestamp_quality": {
+    "exact_time_inherited": 34,
+    "coarse_text_time": 2,
+    "exact_window_time": 10,
+    "unknown_time": 6
+  },
+  "counts_by_record_type": {
+    "historical_incident": 4,
+    "manual_teacher_judgement": 10,
+    "memory_summary": 2,
+    "outcome": 10,
+    "packet": 10,
+    "training_example": 16
+  },
+  "cutoff_safe_count": 44,
+  "exact_time_range": {
+    "earliest": "2026-04-16T11:25:00Z",
+    "latest": "2026-04-16T12:25:00Z"
+  }
+}

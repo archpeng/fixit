@@ -1,0 +1,37 @@
+{
+  "datasets": {
+    "outcomes": {
+      "row_count": 10,
+      "timestamp_quality_counts": {
+        "exact_time_inherited": 10
+      },
+      "strict_eval_eligible_count": 10,
+      "train_only_count": 0
+    },
+    "manual_teacher_judgements": {
+      "row_count": 10,
+      "timestamp_quality_counts": {
+        "exact_time_inherited": 10
+      },
+      "strict_eval_eligible_count": 10,
+      "train_only_count": 0
+    },
+    "training_examples": {
+      "row_count": 16,
+      "timestamp_quality_counts": {
+        "unknown_time": 6,
+        "exact_time_inherited": 10
+      },
+      "strict_eval_eligible_count": 10,
+      "train_only_count": 6
+    },
+    "historical_incidents": {
+      "row_count": 4,
+      "timestamp_quality_counts": {
+        "exact_time_inherited": 4
+      },
+      "strict_eval_eligible_count": 4,
+      "train_only_count": 0
+    }
+  }
+}
