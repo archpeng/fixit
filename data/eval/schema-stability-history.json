@@ -2,10 +2,47 @@
   "reference_date": "2026-04-17",
   "schema_file_count": 3,
   "current_fingerprint": "eca31e752669c28489d4b90c2bef72a3d146cd91ad70c742be1a36e1a6acd491",
-  "current_elapsed_days": 1,
+  "first_observed_date": "2026-04-17",
+  "current_elapsed_days": 0,
+  "snapshot_count": 8,
   "snapshots": [
     {
       "date": "2026-04-17",
+      "fingerprint": "eca31e752669c28489d4b90c2bef72a3d146cd91ad70c742be1a36e1a6acd491"
+    },
+    {
+      "date": "2026-04-17",
+      "captured_at": "2026-04-17T01:21:20Z",
+      "fingerprint": "eca31e752669c28489d4b90c2bef72a3d146cd91ad70c742be1a36e1a6acd491"
+    },
+    {
+      "date": "2026-04-17",
+      "captured_at": "2026-04-17T01:24:50Z",
+      "fingerprint": "eca31e752669c28489d4b90c2bef72a3d146cd91ad70c742be1a36e1a6acd491"
+    },
+    {
+      "date": "2026-04-17",
+      "captured_at": "2026-04-17T01:42:38Z",
+      "fingerprint": "eca31e752669c28489d4b90c2bef72a3d146cd91ad70c742be1a36e1a6acd491"
+    },
+    {
+      "date": "2026-04-17",
+      "captured_at": "2026-04-17T01:48:59Z",
+      "fingerprint": "eca31e752669c28489d4b90c2bef72a3d146cd91ad70c742be1a36e1a6acd491"
+    },
+    {
+      "date": "2026-04-17",
+      "captured_at": "2026-04-17T01:56:35Z",
+      "fingerprint": "eca31e752669c28489d4b90c2bef72a3d146cd91ad70c742be1a36e1a6acd491"
+    },
+    {
+      "date": "2026-04-17",
+      "captured_at": "2026-04-17T02:00:59Z",
+      "fingerprint": "eca31e752669c28489d4b90c2bef72a3d146cd91ad70c742be1a36e1a6acd491"
+    },
+    {
+      "date": "2026-04-17",
+      "captured_at": "2026-04-17T02:05:41Z",
       "fingerprint": "eca31e752669c28489d4b90c2bef72a3d146cd91ad70c742be1a36e1a6acd491"
     }
   ]

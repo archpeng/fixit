@@ -8,12 +8,12 @@
     {
       "criterion_id": "teacher_reviewed_volume_growth",
       "status": "partial",
-      "rationale": "current_reviewed=2 predecessor=1 target=10"
+      "rationale": "current_reviewed=7 predecessor=1 target=10"
     },
     {
       "criterion_id": "schema_stability_window",
       "status": "unmet",
-      "rationale": "schema_stability_days=1 target=14"
+      "rationale": "schema_stability_days=0 target=14"
     }
   ],
   "summary": {

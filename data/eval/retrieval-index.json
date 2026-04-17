@@ -12,6 +12,10 @@
           "compile",
           "rpc13",
           "internal-server-error"
+        ],
+        "source_packet_ids": [
+          "ipk_w004",
+          "ipk_w006"
         ]
       },
       "tokens": {
@@ -43,6 +47,10 @@
           "compile",
           "latency",
           "warmup"
+        ],
+        "source_packet_ids": [
+          "ipk_w002",
+          "ipk_w007"
         ]
       },
       "tokens": {
@@ -102,6 +110,11 @@
         "tags": [
           "bff",
           "timeout"
+        ],
+        "source_packet_ids": [
+          "ipk_w010",
+          "ipk_w011",
+          "ipk_w012"
         ]
       },
       "tokens": {

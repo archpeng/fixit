@@ -5,7 +5,7 @@
     "teacher_rubric": 0.75,
     "rule": 0.6
   },
-  "training_examples": 10,
+  "training_examples": 17,
   "feature_names": [
     "error_rate_delta",
     "p95_delta",

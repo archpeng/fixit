@@ -3,6 +3,23 @@ from __future__ import annotations
 from typing import Iterable
 
 
+def resolve_allowed_services(services_cfg: dict | None) -> set[str] | None:
+    if not services_cfg:
+        return None
+
+    allowlist = services_cfg.get("runtime_pilot_allowlist", [])
+    normalized = {
+        item.get("service") if isinstance(item, dict) else item
+        for item in allowlist
+        if (item.get("service") if isinstance(item, dict) else item)
+    }
+    if normalized:
+        return normalized
+
+    pilot_service = services_cfg.get("pilot_family", {}).get("service")
+    return {pilot_service} if pilot_service else None
+
+
 def _count_numeric_signals(row: dict, cfg: dict) -> int:
     count = 0
     if row.get("error_rate_delta", 0.0) >= cfg["error_rate_delta"]:

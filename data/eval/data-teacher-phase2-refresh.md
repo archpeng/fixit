@@ -2,8 +2,8 @@
 
 ## Criteria
 - `multi_pilot_replay_coverage` => `met` :: pilot_service_count=2 services=['g-crm-campaign', 'prod-hq-bff-service']
-- `teacher_reviewed_volume_growth` => `partial` :: current_reviewed=2 predecessor=1 target=10
-- `schema_stability_window` => `unmet` :: schema_stability_days=1 target=14
+- `teacher_reviewed_volume_growth` => `partial` :: current_reviewed=7 predecessor=1 target=10
+- `schema_stability_window` => `unmet` :: schema_stability_days=0 target=14
 
 ## Phase-2 Refresh Verdict
 - verdict: `not-yet`

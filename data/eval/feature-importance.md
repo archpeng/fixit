@@ -1,13 +1,13 @@
 # Feature Importance
 
-- `error_rate_delta`: `3.3373`
-- `trace_error_ratio`: `3.3088`
-- `log_error_density`: `2.7947`
-- `template_novelty_max`: `2.5560`
-- `similar_severe_score`: `2.4096`
-- `blast_radius_score`: `-1.4698`
-- `alert_count`: `-1.2375`
-- `p95_delta`: `1.1651`
-- `recent_deploy`: `0.4307`
-- `qps_delta`: `0.2104`
-- `rule_score_max`: `0.1056`
+- `trace_error_ratio`: `4.5396`
+- `error_rate_delta`: `3.5076`
+- `template_novelty_max`: `3.0840`
+- `log_error_density`: `2.5922`
+- `alert_count`: `-1.8959`
+- `p95_delta`: `1.3533`
+- `similar_severe_score`: `1.2979`
+- `qps_delta`: `-1.1212`
+- `blast_radius_score`: `-1.0412`
+- `recent_deploy`: `0.4527`
+- `rule_score_max`: `0.0657`

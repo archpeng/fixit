@@ -1,12 +1,12 @@
 {
   "counts_by_source": {
-    "human_outcome": 4,
+    "human_outcome": 11,
     "production_outcome": 3,
     "teacher_rubric": 1,
     "rule": 2
   },
   "positives_by_source": {
-    "human_outcome": 2,
+    "human_outcome": 4,
     "production_outcome": 2,
     "teacher_rubric": 1,
     "rule": 0
@@ -18,9 +18,9 @@
     "rule": 0.6
   },
   "outcome_counts_by_source": {
-    "human_outcome": 7,
+    "human_outcome": 12,
     "production_outcome": 1
   },
-  "outcome_total": 8,
-  "outcome_severe_total": 4
+  "outcome_total": 13,
+  "outcome_severe_total": 5
 }

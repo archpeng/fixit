@@ -9,7 +9,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from fixit_ai.candidate_generation import generate_candidate_windows
+from fixit_ai.candidate_generation import generate_candidate_windows, resolve_allowed_services
 from fixit_ai.common import read_jsonl, read_yaml, write_jsonl
 
 
@@ -24,7 +24,7 @@ def main() -> None:
     rows = read_jsonl(args.input)
     thresholds = read_yaml(args.thresholds)
     services = read_yaml(args.services)
-    allowed = {services["pilot_family"]["service"]}
+    allowed = resolve_allowed_services(services)
     candidates = generate_candidate_windows(rows, thresholds, allowed_services=allowed)
     write_jsonl(args.output, candidates)
     print(f"generated {len(candidates)} candidate windows -> {args.output}")

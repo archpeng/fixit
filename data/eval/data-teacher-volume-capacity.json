@@ -1,0 +1,49 @@
+{
+  "current_reviewed_count": 7,
+  "reviewed_packet_ids": [
+    "ipk_w002",
+    "ipk_w004",
+    "ipk_w006",
+    "ipk_w007",
+    "ipk_w010",
+    "ipk_w011",
+    "ipk_w012"
+  ],
+  "current_packet_count": 10,
+  "current_packet_ids": [
+    "ipk_w001",
+    "ipk_w002",
+    "ipk_w004",
+    "ipk_w005",
+    "ipk_w006",
+    "ipk_w007",
+    "ipk_w009",
+    "ipk_w010",
+    "ipk_w011",
+    "ipk_w012"
+  ],
+  "visible_unreviewed_remainder": 3,
+  "visible_unreviewed_packet_ids": [
+    "ipk_w001",
+    "ipk_w005",
+    "ipk_w009"
+  ],
+  "visible_maximum_reviewed_ceiling": 10,
+  "phase2_target_reviewed_count": 10,
+  "remaining_to_phase2_target": 3,
+  "runtime_allowlist_services": [
+    "g-crm-campaign",
+    "prod-hq-bff-service"
+  ],
+  "candidate_services": [
+    "g-crm-campaign",
+    "prod-hq-bff-service"
+  ],
+  "packet_services": [
+    "g-crm-campaign",
+    "prod-hq-bff-service"
+  ],
+  "services_without_candidates": [],
+  "next_slice": "RW2B.S1_DAILY_REVIEW_APPEND_AND_GAP_BURNDOWN",
+  "routing_reason": "current bounded packet supply can clear reviewed-volume target"
+}

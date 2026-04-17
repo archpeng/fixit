@@ -10,7 +10,7 @@
       "name": "metrics_windows",
       "output": "data/samples/replay/metrics_windows.jsonl",
       "output_row_count": 12,
-      "output_sha256": "d883a796e25180bd600996094a9af583404222eef9f728dce7731bf17035ec04",
+      "output_sha256": "965cb8dc6b87befb6164ec7c7f1069ab2d2d172761c554165c21218d57b81d8b",
       "sources": [
         {
           "path": "data/samples/raw/metrics_windows.jsonl",
@@ -23,8 +23,8 @@
           "path": "data/samples/fixtures/metrics_windows.retained.jsonl",
           "class": "retained_fixture",
           "row_count": 7,
-          "sha256": "035e91ece2c0c4c1646d834b1ddbe22bf8938967d0702ec71911605e8a8093bf",
-          "freshness": "2026-04-16T23:40:52.716971+00:00"
+          "sha256": "33fbb4555182f34fb3d0ba8e1a5c211bb16a8de3f5d2ab26ba5ae057350ad5a8",
+          "freshness": "2026-04-17T01:48:25.075578+00:00"
         }
       ]
     },
@@ -113,14 +113,14 @@
       "name": "historical_incidents",
       "output": "data/eval/replay/historical_incidents.jsonl",
       "output_row_count": 7,
-      "output_sha256": "120d3b25b1de0d350f9fd5f9f670215c831a21a1badbfb16ebb49274c13dfbf5",
+      "output_sha256": "21b7bc79a9859be3496e8561a47f03d962cd1461d171f6cf489d674e2081c9a1",
       "sources": [
         {
           "path": "data/eval/historical_incidents.jsonl",
           "class": "retained_fixture",
           "row_count": 4,
-          "sha256": "92c9cc6debcec3eed3b644f425b5b3fcff77797e64361e17604b31bb07668a97",
-          "freshness": "2026-04-16T13:25:47.563821+00:00"
+          "sha256": "c45755ddb315cb19014f61ac07d19ced10c81300a97b65c03a154c2a047fb9e7",
+          "freshness": "2026-04-17T01:56:08.279221+00:00"
         },
         {
           "path": "data/eval/fixtures/historical_incidents.retained.jsonl",
@@ -134,15 +134,15 @@
     {
       "name": "training_examples",
       "output": "data/eval/replay/training_examples.jsonl",
-      "output_row_count": 10,
-      "output_sha256": "fd7880bd14dd8868c9de6b459240837c68040c48e3e9842e8b209869c54a976e",
+      "output_row_count": 17,
+      "output_sha256": "87c9a98c9cade652089ea2dd37dcf11cdbf0a2855019cae027aabb140879f579",
       "sources": [
         {
           "path": "data/eval/training_examples.jsonl",
           "class": "retained_fixture",
-          "row_count": 6,
-          "sha256": "b744074c77bc8e73bb8060d2a55b8710e979fa424a4379aa6110d015411af3fe",
-          "freshness": "2026-04-16T13:25:47.565063+00:00"
+          "row_count": 13,
+          "sha256": "ba6dbdb3dbb61f63e9b911c650daad21f5763d87c043cf9548c901a0d2b43b3a",
+          "freshness": "2026-04-17T01:56:08.279221+00:00"
         },
         {
           "path": "data/eval/fixtures/training_examples.retained.jsonl",
@@ -156,15 +156,15 @@
     {
       "name": "outcomes",
       "output": "data/eval/replay/outcomes.jsonl",
-      "output_row_count": 8,
-      "output_sha256": "efeef813d0daf6021191ae52ce7c73c4f6fbcc2b36586427bc397944ef3b9d36",
+      "output_row_count": 13,
+      "output_sha256": "b1a9d4d510d51b2f2be05783cfe1ca1e7adbd7dbaaa127438d4ad9dd124415c5",
       "sources": [
         {
           "path": "data/eval/outcomes.jsonl",
           "class": "retained_fixture",
-          "row_count": 4,
-          "sha256": "67f561fba18daa4d4bbda578b9f6999bfdc3ab83b1c754e480a8fd113e3a5b84",
-          "freshness": "2026-04-16T13:25:47.565063+00:00"
+          "row_count": 9,
+          "sha256": "e2d9dedd176c3eeecc7d3fe76c9d4ac51d6abf46735e0c84e14cf50f96c1fceb",
+          "freshness": "2026-04-17T01:56:08.279221+00:00"
         },
         {
           "path": "data/eval/fixtures/outcomes.retained.jsonl",
@@ -178,15 +178,15 @@
     {
       "name": "manual_teacher_judgements",
       "output": "data/eval/replay/manual_teacher_judgements.jsonl",
-      "output_row_count": 1,
-      "output_sha256": "2978427bd177c7e0ecdb48da318cd4b92f2cbb7852913ab49c006a019b37b78b",
+      "output_row_count": 7,
+      "output_sha256": "cdb4627eb2dc67d1f5611c38125855c2cd50eee7fe15cde6328939756cfa8062",
       "sources": [
         {
           "path": "data/eval/manual_teacher_judgements.jsonl",
           "class": "retained_fixture",
-          "row_count": 1,
-          "sha256": "2978427bd177c7e0ecdb48da318cd4b92f2cbb7852913ab49c006a019b37b78b",
-          "freshness": "2026-04-16T13:25:47.565063+00:00"
+          "row_count": 7,
+          "sha256": "cdb4627eb2dc67d1f5611c38125855c2cd50eee7fe15cde6328939756cfa8062",
+          "freshness": "2026-04-17T01:56:08.279221+00:00"
         }
       ]
     }
@@ -196,120 +196,120 @@
       "path": "data/samples/candidate-windows.jsonl",
       "class": "derived_artifact",
       "exists": true,
-      "sha256": "3f94b542f0fcc2bf5a6284a342986f99a1e388e0513a781ea7e24013988f3109",
-      "freshness": "2026-04-16T14:45:33.050219+00:00"
+      "sha256": "6e2d620bc3a9e8dd8285e418a0c1d99defac9ac7dc3328e5f494422eb6c45660",
+      "freshness": "2026-04-17T01:56:34.802897+00:00"
     },
     {
       "path": "data/samples/incident-packets.jsonl",
       "class": "derived_artifact",
       "exists": true,
-      "sha256": "65ca91c1f97ff658e79fb3fe27539f1fbc76db5614e6ebe69a18077c1b508627",
-      "freshness": "2026-04-16T14:45:33.194946+00:00"
+      "sha256": "3ae49f7d8355bc18531801d176c67c58f6f9d6d6c86b285f7b450a940c4b81f4",
+      "freshness": "2026-04-17T01:56:34.954422+00:00"
     },
     {
       "path": "data/samples/retrieval-results.jsonl",
       "class": "derived_artifact",
       "exists": true,
-      "sha256": "5dcd2b3e63ce7c498af2022d8e2ca8dba25a38c9098d13b54dd956bf8a3036f3",
-      "freshness": "2026-04-16T14:45:33.272309+00:00"
+      "sha256": "6673efeb32d51b75eb9ba97db9049d2aab79082cadced7d20ad8915e9a48dcb9",
+      "freshness": "2026-04-17T01:56:35.013477+00:00"
     },
     {
       "path": "data/eval/student-scores.jsonl",
       "class": "derived_artifact",
       "exists": true,
-      "sha256": "231be1e60745a50d17025261a10e6b89766eddc29eb29d017a8be360e197bca7",
-      "freshness": "2026-04-16T14:45:33.323415+00:00"
+      "sha256": "494288b071f0ea715c6c976fb1dd1001348b27b0b4eb1d0fd63f266a395c90ff",
+      "freshness": "2026-04-17T01:56:35.055342+00:00"
     },
     {
       "path": "data/eval/teacher-judgements.jsonl",
       "class": "derived_artifact",
       "exists": true,
-      "sha256": "7bcc046569091cf7a1dabe1e719ede8487e3726502eee0d1960400424a66b9cf",
-      "freshness": "2026-04-16T14:45:33.414145+00:00"
+      "sha256": "e2ecc34cd731036c5afff09f7b4315250d95f73c83c9815cab3a044494800c66",
+      "freshness": "2026-04-17T01:56:35.149354+00:00"
     },
     {
       "path": "data/eval/triage-decisions.jsonl",
       "class": "derived_artifact",
       "exists": true,
-      "sha256": "b081beaed658373fcd088155e2e03c49a05cd94045dd9b6720a1c2bb67bda702",
-      "freshness": "2026-04-16T14:45:33.469988+00:00"
+      "sha256": "8e92b1905c144334b87be7850ce149899040db48c2722538ddc2be0b54fa9854",
+      "freshness": "2026-04-17T01:56:35.222069+00:00"
     },
     {
       "path": "data/eval/metrics-summary.json",
       "class": "derived_artifact",
       "exists": true,
-      "sha256": "697aa6efea0afec67f7a73440ab3b33be8e72a8f91145309dcc98313a411fbf9",
-      "freshness": "2026-04-16T14:45:33.470076+00:00"
+      "sha256": "0539e868613f64cd7a6fee889384ae3d708c2c0abd25458d04c49da54d83133f",
+      "freshness": "2026-04-17T01:56:35.222162+00:00"
     },
     {
       "path": "data/reports/daily-shadow-report.json",
       "class": "derived_artifact",
       "exists": true,
-      "sha256": "a5effd9c1ff240203eacbc6ff1185f6a2b3ab0532ad4059ee396b34e237675a4",
-      "freshness": "2026-04-16T14:45:33.592366+00:00"
+      "sha256": "24b97f4178af722fe239a9ed8ae359321829774023060fdcb3ac80b60e57f1f5",
+      "freshness": "2026-04-17T01:56:35.349305+00:00"
     },
     {
       "path": "data/reports/daily-shadow-report.md",
       "class": "derived_artifact",
       "exists": true,
-      "sha256": "2ea07ede4b68f1634126bd95593e7b6a1535134d33539d5bb365f0af67106f65",
-      "freshness": "2026-04-16T14:45:33.592456+00:00"
+      "sha256": "40761c6a7b37d185d929810fde3c05d972ff1fcfce34ce7217c48271639cdb89",
+      "freshness": "2026-04-17T01:56:35.349402+00:00"
     },
     {
       "path": "data/eval/retrieval-index.json",
       "class": "derived_artifact",
       "exists": true,
-      "sha256": "9211242097d0c34818c6b3d48da8a7280bfcc92e34b86d04824eae1feab2c3c9",
-      "freshness": "2026-04-16T14:45:33.271974+00:00"
+      "sha256": "3123b8e7e2ef63df23bb4b9630087c5a9740c4715d89e2c88a139694c16abab5",
+      "freshness": "2026-04-17T01:56:35.013066+00:00"
     },
     {
       "path": "data/eval/label-ledger.json",
       "class": "derived_artifact",
       "exists": true,
-      "sha256": "c6d3c4adf9a18b42e6e78d4be63bd7467bad88144b9ce6a4d9cd1480791464c6",
-      "freshness": "2026-04-16T14:45:33.370873+00:00"
+      "sha256": "7ae1205caaf9352bfde337f73cdde64a3c74cfbf9233c0ed2223ae04d0efabf9",
+      "freshness": "2026-04-17T01:56:35.105783+00:00"
     },
     {
       "path": "data/eval/calibration-report.json",
       "class": "derived_artifact",
       "exists": true,
-      "sha256": "074820707576871aaf6c053338d1ee3175186a16c2f21df677024860b8cd57ba",
-      "freshness": "2026-04-16T14:45:33.502771+00:00"
+      "sha256": "d801c29c6775971e2432e1cea344f5be9487b23f73fe9d729cc673e1ad1b9001",
+      "freshness": "2026-04-17T01:56:35.255727+00:00"
     },
     {
       "path": "data/eval/teacher-request-ledger.jsonl",
       "class": "derived_artifact",
       "exists": true,
-      "sha256": "a655e93b560908e47f23be659189b8674d43bf4eeb573a6d3e5f876967571ed2",
-      "freshness": "2026-04-16T14:45:33.414242+00:00"
+      "sha256": "68fd4093def8330f16e738071fb474283023b82ecd760d8d7384fa09707da7ff",
+      "freshness": "2026-04-17T01:56:35.149441+00:00"
     },
     {
       "path": "data/eval/teacher-review-ledger.jsonl",
       "class": "derived_artifact",
       "exists": true,
-      "sha256": "c06c6fd9e0883b40f6d949b1a0db2f67b95a5c9d7989454c3d531e785bb762af",
-      "freshness": "2026-04-16T14:45:33.414282+00:00"
+      "sha256": "53a860f554774a3c3a6df72aee88de6ae14a422ee3aa0f86b47498023fecf868",
+      "freshness": "2026-04-17T01:56:35.149489+00:00"
     },
     {
       "path": "data/eval/teacher-fallback-ledger.jsonl",
       "class": "derived_artifact",
       "exists": true,
-      "sha256": "a233fd3dd437ce69ba5d648982afb9aed9cbc6d917df792ae222db829845af47",
-      "freshness": "2026-04-16T14:45:33.414312+00:00"
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "freshness": "2026-04-17T01:56:35.149489+00:00"
     },
     {
       "path": "data/eval/enrichment-usage.json",
       "class": "derived_artifact",
       "exists": true,
-      "sha256": "f91876a124247e6669a63508757196647f2ed55f8bf14b9b0c4193a7978873f0",
-      "freshness": "2026-04-16T14:45:33.193616+00:00"
+      "sha256": "c1d47dadaaf5be7e3527784247a738d46544ad37ead5f8d133c357ad6b6122a3",
+      "freshness": "2026-04-17T01:56:34.952746+00:00"
     },
     {
       "path": "data/eval/control-plane-live-readback.json",
       "class": "derived_artifact",
       "exists": true,
       "sha256": "65a960b69acded1c2d6495c01aa7166dbf469cf732f0b189afacacf9c0e863c7",
-      "freshness": "2026-04-16T14:45:33.118058+00:00"
+      "freshness": "2026-04-17T01:56:34.878057+00:00"
     }
   ]
 }

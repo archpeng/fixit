@@ -1,0 +1,49 @@
+{
+  "runtime_mode": "multi_pilot_allowlist",
+  "runtime_allowlist_services": [
+    "g-crm-campaign",
+    "prod-hq-bff-service"
+  ],
+  "runtime_allowlist_count": 2,
+  "observed_metric_services": [
+    "g-crm-campaign",
+    "prod-hq-bff-service"
+  ],
+  "candidate_services": [
+    "g-crm-campaign",
+    "prod-hq-bff-service"
+  ],
+  "packet_services": [
+    "g-crm-campaign",
+    "prod-hq-bff-service"
+  ],
+  "services_without_candidates": [],
+  "metrics_windows_by_service": {
+    "g-crm-campaign": 9,
+    "prod-hq-bff-service": 3
+  },
+  "candidate_windows_by_service": {
+    "g-crm-campaign": 7,
+    "prod-hq-bff-service": 3
+  },
+  "packets_by_service": {
+    "g-crm-campaign": 7,
+    "prod-hq-bff-service": 3
+  },
+  "packet_ids_by_service": {
+    "g-crm-campaign": [
+      "ipk_w001",
+      "ipk_w002",
+      "ipk_w004",
+      "ipk_w005",
+      "ipk_w006",
+      "ipk_w007",
+      "ipk_w009"
+    ],
+    "prod-hq-bff-service": [
+      "ipk_w010",
+      "ipk_w011",
+      "ipk_w012"
+    ]
+  }
+}

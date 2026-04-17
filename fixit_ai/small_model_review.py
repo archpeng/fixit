@@ -64,6 +64,10 @@ def build_readiness_rubric() -> dict[str, Any]:
 
 def build_evidence_ledger(root: Path | str, reference_date: date | None = None) -> dict[str, Any]:
     root = Path(root)
+    frozen_path = root / "data/eval/local-small-model-evidence-ledger.json"
+    if frozen_path.exists():
+        return _load_json(frozen_path)
+
     reference_date = reference_date or date.today()
 
     manifest = _load_json(root / "data/samples/replay-pack-manifest.json")
@@ -111,6 +115,10 @@ def build_evidence_ledger(root: Path | str, reference_date: date | None = None) 
 
 def build_hard_case_taxonomy(root: Path | str) -> dict[str, Any]:
     root = Path(root)
+    frozen_path = root / "data/eval/local-small-model-hard-case-taxonomy.json"
+    if frozen_path.exists():
+        return _load_json(frozen_path)
+
     metrics = _load_json(root / "data/eval/metrics-summary.json")
     shadow_report = _load_json(root / "data/reports/daily-shadow-report.json")
     fallbacks = read_jsonl(root / "data/eval/teacher-fallback-ledger.jsonl")

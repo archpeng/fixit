@@ -5,8 +5,8 @@
     "p3": 0.45
   },
   "observed_score_band": {
-    "max": 0.9972,
-    "min": 0.2581
+    "max": 0.9927,
+    "min": 0.0044
   },
   "note": "Keep initial thresholds aligned with MVP docs until larger replay data justifies recalibration."
 }

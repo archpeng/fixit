@@ -2,8 +2,10 @@ from __future__ import annotations
 
 
 def compute_eval_metrics(decisions: list[dict], outcomes: list[dict], top_k: int = 3) -> dict:
-    outcomes_by_packet = {item["packet_id"]: item for item in outcomes}
-    severe_packets = {item["packet_id"] for item in outcomes if item.get("actual_severe")}
+    decision_packet_ids = {item["packet_id"] for item in decisions}
+    relevant_outcomes = [item for item in outcomes if item.get("packet_id") in decision_packet_ids]
+    outcomes_by_packet = {item["packet_id"]: item for item in relevant_outcomes}
+    severe_packets = {item["packet_id"] for item in relevant_outcomes if item.get("actual_severe")}
     predicted_severe = {
         item["packet_id"] for item in decisions if item.get("final_priority") in {"P1", "P2"}
     }

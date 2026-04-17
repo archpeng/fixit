@@ -1,4 +1,7 @@
 default_env: prod
+runtime_pilot_allowlist:
+  - g-crm-campaign
+  - prod-hq-bff-service
 pilot_family:
   name: crm-campaign-compile
   service: g-crm-campaign

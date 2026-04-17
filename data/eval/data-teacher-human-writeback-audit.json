@@ -1,0 +1,69 @@
+{
+  "target_packet_ids": [
+    "ipk_w002",
+    "ipk_w004",
+    "ipk_w006",
+    "ipk_w007",
+    "ipk_w010",
+    "ipk_w011",
+    "ipk_w012"
+  ],
+  "outcome_backfilled_count": 7,
+  "training_backfilled_count": 7,
+  "incident_backfilled_count": 7,
+  "fully_backfilled_count": 7,
+  "missing_outcome_packet_ids": [],
+  "missing_training_packet_ids": [],
+  "missing_incident_packet_ids": [],
+  "coverage": [
+    {
+      "packet_id": "ipk_w002",
+      "outcome_present": true,
+      "training_present": true,
+      "incident_present": true,
+      "fully_backfilled": true
+    },
+    {
+      "packet_id": "ipk_w004",
+      "outcome_present": true,
+      "training_present": true,
+      "incident_present": true,
+      "fully_backfilled": true
+    },
+    {
+      "packet_id": "ipk_w006",
+      "outcome_present": true,
+      "training_present": true,
+      "incident_present": true,
+      "fully_backfilled": true
+    },
+    {
+      "packet_id": "ipk_w007",
+      "outcome_present": true,
+      "training_present": true,
+      "incident_present": true,
+      "fully_backfilled": true
+    },
+    {
+      "packet_id": "ipk_w010",
+      "outcome_present": true,
+      "training_present": true,
+      "incident_present": true,
+      "fully_backfilled": true
+    },
+    {
+      "packet_id": "ipk_w011",
+      "outcome_present": true,
+      "training_present": true,
+      "incident_present": true,
+      "fully_backfilled": true
+    },
+    {
+      "packet_id": "ipk_w012",
+      "outcome_present": true,
+      "training_present": true,
+      "incident_present": true,
+      "fully_backfilled": true
+    }
+  ]
+}

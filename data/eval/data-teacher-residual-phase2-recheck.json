@@ -1,0 +1,27 @@
+{
+  "criteria": [
+    {
+      "criterion_id": "bounded_packet_supply_capacity",
+      "status": "met",
+      "rationale": "visible_maximum_reviewed_ceiling=10 target=10"
+    },
+    {
+      "criterion_id": "reviewed_teacher_volume_growth",
+      "status": "partial",
+      "rationale": "reviewed=7 remaining=3 target=10"
+    },
+    {
+      "criterion_id": "schema_day_span_progress",
+      "status": "unmet",
+      "rationale": "distinct_dates=1 elapsed_days=0 remaining_days=14"
+    }
+  ],
+  "summary": {
+    "met": 1,
+    "partial": 1,
+    "unmet": 1
+  },
+  "verdict": "not-yet",
+  "recommended_successor": "ALERT_INTELLIGENCE_DATA_AND_TEACHER_ACCUMULATION_DAILY_VOLUME_AND_SCHEMA_RESIDUAL",
+  "reason": "Reviewed volume and real schema day-span both still need daily accumulation before a rerun is honest."
+}

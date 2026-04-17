@@ -18,12 +18,12 @@
     "DW2": {
       "slice_id": "DW2.S1_TEACHER_REVIEW_BATCH_AND_LABEL_SOURCE_EXPANSION",
       "focus": "grow reviewed teacher volume and keep label-source mix moving with provenance",
-      "current_teacher_reviewed_count": 1,
+      "current_teacher_reviewed_count": 7,
       "target_teacher_reviewed_count": 10,
-      "teacher_reviewed_count_gap": 9,
-      "current_teacher_fallback_ratio": 0.5,
+      "teacher_reviewed_count_gap": 3,
+      "current_teacher_fallback_ratio": 0.0,
       "target_teacher_fallback_ratio_max": 0.2,
-      "teacher_fallback_ratio_gap": 0.3,
+      "teacher_fallback_ratio_gap": 0.0,
       "current_teacher_rubric_label_count": 1,
       "teacher_rubric_label_growth_needed": true,
       "status": "open"

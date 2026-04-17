@@ -1,0 +1,24 @@
+{
+  "family": "ALERT_INTELLIGENCE_DATA_AND_TEACHER_ACCUMULATION_FOLLOWUP",
+  "family_verdict": "accept_with_residuals",
+  "completed_slices": [
+    "FW1.S1_MULTI_PILOT_ALLOWLIST_AND_DAILY_RUNTIME_BASELINE",
+    "FW2.S1_TEACHER_THROUGHPUT_AND_DAILY_REVIEW_BATCH",
+    "FW3.S1_HUMAN_WRITEBACK_AND_LABEL_BACKFILL_CONTRACT",
+    "FW4.S1_APPEND_ONLY_SCHEMA_CHECKPOINT_AND_ACCUMULATION_REFRESH",
+    "FW5.S1_PHASE2_RERUN_AND_SUCCESSOR_DECISION"
+  ],
+  "recommended_successor": "ALERT_INTELLIGENCE_DATA_AND_TEACHER_ACCUMULATION_STABILITY_AND_VOLUME_RESIDUAL",
+  "phase2_verdict": "not-yet",
+  "improvements": [
+    "runtime entry is now bounded by a multi-pilot allowlist instead of a single pilot service",
+    "daily teacher batch now reviews all selected hard cases without fallback",
+    "reviewed packets now have explicit outcome, training, and incident-summary backfill coverage",
+    "schema stability history now preserves append-only checkpoints"
+  ],
+  "residuals": [
+    "teacher volume still below phase-2 threshold",
+    "schema stability window still below 14 days",
+    "phase-2 readiness remains not-yet after refreshed followup evidence"
+  ]
+}

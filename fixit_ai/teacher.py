@@ -48,6 +48,8 @@ def _select_teacher_payloads(
             triggers.append("high_blast_radius")
         if score.get("student_score", 0.0) >= cfg["severity_score_at_or_above"] and not packet.get("rules", {}).get("fired"):
             triggers.append("rule_missed_high_score")
+        if packet.get("rules", {}).get("fired") and score.get("student_score", 0.0) <= cfg.get("rule_alert_score_below", 0.0):
+            triggers.append("rule_alert_score_conflict")
 
         if not triggers:
             continue

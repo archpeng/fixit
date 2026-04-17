@@ -1,12 +1,18 @@
 {
   "predecessor_teacher_reviewed_count": 1,
-  "current_teacher_reviewed_count": 2,
-  "teacher_reviewed_delta": 1,
+  "current_teacher_reviewed_count": 7,
+  "teacher_reviewed_delta": 6,
   "current_teacher_packet_ids": [
+    "ipk_w002",
     "ipk_w004",
-    "ipk_w006"
+    "ipk_w006",
+    "ipk_w007",
+    "ipk_w010",
+    "ipk_w011",
+    "ipk_w012"
   ],
   "label_teacher_rubric_count": 1,
-  "teacher_label_gap": 1,
+  "training_backfill_count": 7,
+  "teacher_label_gap": 0,
   "retained_review_batch_path": "data/eval/fixtures/teacher_review_batch.retained.jsonl"
 }

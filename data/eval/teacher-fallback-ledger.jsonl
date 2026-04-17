@@ -1,1 +1,0 @@
-{"packet_id": "ipk_w006", "fallback_action": "send_to_human_review", "reason": "teacher judgement unavailable for selected hard case", "triggers": ["high_novelty", "rule_missed_high_score"]}

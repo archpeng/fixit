@@ -1,10 +1,15 @@
 {
-  "total_count": 1,
+  "total_count": 2,
   "live_count": 0,
-  "fallback_count": 1,
+  "fallback_count": 2,
   "details": [
     {
       "service": "g-crm-campaign",
+      "source": "config_fallback",
+      "reason": "live record missing"
+    },
+    {
+      "service": "prod-hq-bff-service",
       "source": "config_fallback",
       "reason": "live record missing"
     }

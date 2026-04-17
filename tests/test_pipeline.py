@@ -4,7 +4,7 @@ from pathlib import Path
 
 import yaml
 
-from fixit_ai.candidate_generation import generate_candidate_windows
+from fixit_ai.candidate_generation import generate_candidate_windows, resolve_allowed_services
 from fixit_ai.packet_builder import build_packets
 from fixit_ai.retrieval import retrieve_similar_incidents
 from fixit_ai.schema_tools import SchemaBundle
@@ -52,6 +52,52 @@ class AlertIntelligencePipelineTests(unittest.TestCase):
         hard_case = next(item for item in candidates if item["window_id"] == "w004")
         self.assertIn("multi_signal_shift", hard_case["anomaly_signals"])
         self.assertEqual(hard_case["rules"]["fired"], [])
+
+    def test_runtime_allowlist_resolves_multiple_pilots_without_opening_scope(self):
+        allowlist = resolve_allowed_services(self.services)
+        self.assertEqual(allowlist, {"g-crm-campaign", "prod-hq-bff-service"})
+
+        rows = [
+            {
+                "window_id": "allow_a",
+                "service": "g-crm-campaign",
+                "operation": "ADCService/Compile",
+                "ts_start": "2026-04-16T12:00:00Z",
+                "ts_end": "2026-04-16T12:05:00Z",
+                "error_rate_delta": 0.18,
+                "p95_delta": 0.72,
+                "qps_delta": 0.08,
+                "saturation_delta": 0.07,
+                "rules": {"fired": ["high_error_rate"], "scores": {"high_error_rate": 0.98}},
+            },
+            {
+                "window_id": "allow_b",
+                "service": "prod-hq-bff-service",
+                "operation": "POST /brand/detail",
+                "ts_start": "2026-04-16T12:05:00Z",
+                "ts_end": "2026-04-16T12:10:00Z",
+                "error_rate_delta": 0.09,
+                "p95_delta": 0.52,
+                "qps_delta": 0.18,
+                "saturation_delta": 0.03,
+                "rules": {"fired": [], "scores": {}},
+            },
+            {
+                "window_id": "deny_c",
+                "service": "unlisted-service",
+                "operation": "GET /health",
+                "ts_start": "2026-04-16T12:10:00Z",
+                "ts_end": "2026-04-16T12:15:00Z",
+                "error_rate_delta": 0.21,
+                "p95_delta": 0.91,
+                "qps_delta": 0.25,
+                "saturation_delta": 0.22,
+                "rules": {"fired": ["high_error_rate"], "scores": {"high_error_rate": 0.99}},
+            },
+        ]
+        candidates = generate_candidate_windows(rows, self.thresholds, allowed_services=allowlist)
+        self.assertEqual({item["service"] for item in candidates}, allowlist)
+        self.assertEqual({item["window_id"] for item in candidates}, {"allow_a", "allow_b"})
 
     def test_packet_builder_merges_sources_and_validates_against_schema(self):
         candidates = generate_candidate_windows(self.metrics, self.thresholds)
