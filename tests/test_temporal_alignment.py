@@ -11,6 +11,7 @@ from fixit_ai.temporal_alignment import (
     build_temporal_boundary_safe_probe,
     build_temporal_episode_context_probe,
     build_temporal_feature_experiment,
+    build_temporal_hybrid_context_probe,
     build_temporal_lineage,
     build_temporal_overlay_summary,
     build_temporal_overlays,
@@ -250,6 +251,18 @@ class TemporalAlignmentTests(unittest.TestCase):
         )
         self.assertIn("boundary_safe_packet_metrics", result)
         self.assertIn("episode_context_packet_metrics", result)
+
+    def test_hybrid_context_probe_reports_score_delta_and_overlap(self):
+        result = build_temporal_hybrid_context_probe(ROOT)
+        self.assertEqual(result["hybrid_context_prior_count"], 4)
+        self.assertEqual(result["fold_count"], 4)
+        self.assertGreater(result["compare"]["packets_with_hybrid_score_delta_gt_raw"], 0)
+        self.assertGreater(result["compare"]["folds_with_top_hit_overlap"], 0)
+        self.assertEqual(result["compare"]["anti_leakage_violation_count"], 0)
+        by_id = {item["episode_id"]: item for item in result["folds"]}
+        self.assertGreater(by_id["ep_inc-other-service"]["hybrid_score_delta_packet_count"], 0)
+        self.assertIn("raw_packet_metrics", result)
+        self.assertIn("hybrid_packet_metrics", result)
 
     def test_heuristic_episode_grouping_clusters_unbacked_related_packets_but_keeps_bounds(self):
         packets = [
