@@ -765,6 +765,310 @@ def build_temporal_feature_experiment(root: Path | str) -> dict[str, Any]:
     }
 
 
+def _severity_label_from_supervision(judgement: dict[str, Any] | None, outcome: dict[str, Any] | None) -> str:
+    if judgement:
+        severity = judgement.get("severity", 0)
+        if severity >= 4:
+            return "severe"
+        if severity >= 2:
+            return "moderate"
+        return "low"
+    if outcome and outcome.get("actual_priority") in {"P1", "P2"}:
+        return "severe"
+    if outcome and outcome.get("actual_priority") == "P3":
+        return "moderate"
+    return "low"
+
+
+def _action_from_supervision(judgement: dict[str, Any] | None, outcome: dict[str, Any] | None) -> str:
+    if judgement and judgement.get("recommended_action"):
+        return judgement["recommended_action"]
+    priority = (outcome or {}).get("actual_priority")
+    if priority in {"P1", "P2"}:
+        return "page_owner"
+    if priority == "P3":
+        return "create_ticket"
+    return "observe"
+
+
+def _packet_prior_summary(packet: dict[str, Any], judgement: dict[str, Any] | None) -> str:
+    parts: list[str] = []
+    template = next(iter(packet.get("logs", {}).get("top_templates", [])), {}).get("template")
+    status = packet.get("traces", {}).get("status_message")
+    evidence = next(iter((judgement or {}).get("evidence", [])), None)
+    for part in [template, status, evidence]:
+        if part and part not in parts:
+            parts.append(part)
+    return " | ".join(parts)
+
+
+def build_temporal_prior_catalog(
+    root: Path | str,
+    overlays: dict[str, list[dict[str, Any]]] | None = None,
+    episodes: list[dict[str, Any]] | None = None,
+    packets: list[dict[str, Any]] | None = None,
+) -> list[dict[str, Any]]:
+    root = Path(root)
+    overlays = overlays or build_temporal_overlays(root)
+    episodes = episodes or build_episode_index(root, overlays=overlays)
+    packets = packets or read_jsonl(root / "data/samples/incident-packets.jsonl")
+
+    outcome_by_packet = {row["packet_id"]: row for row in overlays["outcomes"] if row.get("packet_id")}
+    judgement_by_packet = {
+        row["packet_id"]: row for row in overlays["manual_teacher_judgements"] if row.get("packet_id")
+    }
+    episode_by_packet = {
+        packet_id: episode
+        for episode in episodes
+        for packet_id in episode.get("packet_ids", [])
+        if packet_id
+    }
+
+    priors: list[dict[str, Any]] = []
+    for packet in sorted(packets, key=lambda item: (item.get("ts_start") or "", item.get("packet_id") or "")):
+        packet_id = packet.get("packet_id")
+        if not packet_id:
+            continue
+        outcome = outcome_by_packet.get(packet_id)
+        judgement = judgement_by_packet.get(packet_id)
+        if not outcome and not judgement:
+            continue
+        episode = episode_by_packet.get(packet_id, {})
+        tags = list(
+            dict.fromkeys(
+                [
+                    *(packet.get("anomaly_signals", []) or []),
+                    packet.get("service") or "unknown_service",
+                    packet.get("operation") or "unknown_operation",
+                    episode.get("episode_source") or "unknown_episode_source",
+                ]
+            )
+        )
+        priors.append(
+            {
+                "prior_id": f"tprior_{packet_id}",
+                "incident_id": f"tprior_{packet_id}",
+                "source_packet_id": packet_id,
+                "source_episode_id": episode.get("episode_id"),
+                "service": packet.get("service"),
+                "operation": packet.get("operation"),
+                "summary": _packet_prior_summary(packet, judgement),
+                "severity": _severity_label_from_supervision(judgement, outcome),
+                "recommended_action": _action_from_supervision(judgement, outcome),
+                "tags": tags,
+                "derived_ts_start": packet.get("ts_start"),
+                "derived_ts_end": packet.get("ts_end"),
+                "time_granularity": "window",
+                "timestamp_quality": "exact_time_inherited",
+                "time_source": "packet_linked_reviewed_supervision",
+                "time_source_refs": [packet_id],
+                "cutoff_safe": True,
+            }
+        )
+    return priors
+
+
+def build_temporal_prior_summary(priors: list[dict[str, Any]]) -> dict[str, Any]:
+    service_counts: dict[str, int] = {}
+    severity_counts: dict[str, int] = {}
+    action_counts: dict[str, int] = {}
+    starts: list[str] = []
+    ends: list[str] = []
+
+    for prior in priors:
+        service = prior.get("service") or "unknown_service"
+        severity = prior.get("severity") or "unknown"
+        action = prior.get("recommended_action") or "unknown"
+        service_counts[service] = service_counts.get(service, 0) + 1
+        severity_counts[severity] = severity_counts.get(severity, 0) + 1
+        action_counts[action] = action_counts.get(action, 0) + 1
+        if prior.get("derived_ts_start"):
+            starts.append(prior["derived_ts_start"])
+        if prior.get("derived_ts_end"):
+            ends.append(prior["derived_ts_end"])
+
+    return {
+        "packet_linked_prior_count": len(priors),
+        "service_counts": service_counts,
+        "severity_counts": severity_counts,
+        "recommended_action_counts": action_counts,
+        "exact_time_range": {
+            "earliest": min(starts) if starts else None,
+            "latest": max(ends) if ends else None,
+        },
+    }
+
+
+def build_temporal_prior_probe(root: Path | str) -> dict[str, Any]:
+    root = Path(root)
+    overlays = build_temporal_overlays(root)
+    thresholds = read_yaml(root / "configs/thresholds.yaml")
+    schemas = SchemaBundle(root / "schemas")
+    top_k = thresholds["student"]["evaluation"]["top_k"]
+    packets = read_jsonl(root / "data/samples/incident-packets.jsonl")
+    packet_by_id = {packet["packet_id"]: packet for packet in packets if packet.get("packet_id")}
+    outcomes = overlays["outcomes"]
+    episodes = build_episode_index(root, overlays=overlays)
+    baseline_history_pool = [
+        row
+        for row in overlays["historical_incidents"]
+        if row.get("cutoff_safe") and row.get("timestamp_quality") in {"exact_window_time", "exact_time_inherited"}
+    ]
+    packet_prior_pool = build_temporal_prior_catalog(root, overlays=overlays, episodes=episodes, packets=packets)
+
+    baseline_decisions: list[dict[str, Any]] = []
+    expanded_decisions: list[dict[str, Any]] = []
+    eval_outcomes: list[dict[str, Any]] = []
+    folds: list[dict[str, Any]] = []
+
+    for episode in episodes:
+        episode_id = episode["episode_id"]
+        episode_start_ts = episode.get("episode_start_ts")
+        eval_packet_ids = set(episode.get("packet_ids", []))
+        eval_packets = [packet_by_id[packet_id] for packet_id in episode.get("packet_ids", []) if packet_id in packet_by_id]
+
+        training_rows = []
+        for row in overlays["training_examples"]:
+            quality = row.get("timestamp_quality")
+            row_packet_id = row.get("packet_id")
+            if quality == "unknown_time":
+                training_rows.append(row)
+                continue
+            if not row.get("cutoff_safe"):
+                continue
+            if row_packet_id in eval_packet_ids:
+                continue
+            if row.get("derived_ts_end") and episode_start_ts and row["derived_ts_end"] < episode_start_ts:
+                training_rows.append(row)
+
+        baseline_history = [
+            row
+            for row in baseline_history_pool
+            if row.get("derived_ts_end") and episode_start_ts and row["derived_ts_end"] < episode_start_ts
+        ]
+        expanded_packet_priors = [
+            row
+            for row in packet_prior_pool
+            if row.get("derived_ts_end")
+            and episode_start_ts
+            and row["derived_ts_end"] < episode_start_ts
+            and row.get("source_episode_id") != episode_id
+            and row.get("source_packet_id") not in eval_packet_ids
+        ]
+        expanded_history = [*baseline_history, *expanded_packet_priors]
+
+        model, _ = train_student_model(training_rows, thresholds)
+        baseline_index = build_retrieval_index(baseline_history)
+        expanded_index = build_retrieval_index(expanded_history)
+        baseline_retrieval = {
+            packet["packet_id"]: search_retrieval_index(
+                packet,
+                baseline_index,
+                top_k=top_k,
+                reference_ts=packet.get("ts_start"),
+                recency_half_life_minutes=60,
+            )
+            for packet in eval_packets
+        }
+        expanded_retrieval = {
+            packet["packet_id"]: search_retrieval_index(
+                packet,
+                expanded_index,
+                top_k=top_k,
+                reference_ts=packet.get("ts_start"),
+                recency_half_life_minutes=60,
+            )
+            for packet in eval_packets
+        }
+        baseline_scores = predict_packets(model, eval_packets, baseline_retrieval)
+        expanded_scores = predict_packets(model, eval_packets, expanded_retrieval)
+        baseline_fold_decisions = build_triage_decisions(eval_packets, baseline_retrieval, baseline_scores, [], thresholds, schemas)
+        expanded_fold_decisions = build_triage_decisions(eval_packets, expanded_retrieval, expanded_scores, [], thresholds, schemas)
+        fold_outcomes = [row for row in outcomes if row.get("packet_id") in eval_packet_ids]
+
+        eval_outcomes.extend(fold_outcomes)
+        baseline_decisions.extend(baseline_fold_decisions)
+        expanded_decisions.extend(expanded_fold_decisions)
+
+        top_hit_delta = False
+        for packet in eval_packets:
+            packet_id = packet["packet_id"]
+            baseline_refs = baseline_retrieval.get(packet_id, [])
+            expanded_refs = expanded_retrieval.get(packet_id, [])
+            if [item.get("incident_id") for item in baseline_refs] != [item.get("incident_id") for item in expanded_refs]:
+                top_hit_delta = True
+                break
+            if [item.get("similarity_score") for item in baseline_refs] != [item.get("similarity_score") for item in expanded_refs]:
+                top_hit_delta = True
+                break
+
+        folds.append(
+            {
+                "episode_id": episode_id,
+                "eval_packet_ids": sorted(eval_packet_ids),
+                "baseline_history_doc_count": len(baseline_history),
+                "expanded_packet_prior_doc_count": len(expanded_packet_priors),
+                "expanded_history_doc_count": len(expanded_history),
+                "baseline_retrieval_ref_count": sum(len(item) for item in baseline_retrieval.values()),
+                "expanded_retrieval_ref_count": sum(len(item) for item in expanded_retrieval.values()),
+                "top_hit_delta": top_hit_delta,
+            }
+        )
+
+    return {
+        "baseline_history_doc_count": len(baseline_history_pool),
+        "expanded_packet_prior_count": len(packet_prior_pool),
+        "expanded_total_doc_count": len(baseline_history_pool) + len(packet_prior_pool),
+        "fold_count": len(episodes),
+        "prior_summary": build_temporal_prior_summary(packet_prior_pool),
+        "compare": {
+            "folds_with_expanded_history_gt_baseline": sum(
+                1 for fold in folds if fold["expanded_history_doc_count"] > fold["baseline_history_doc_count"]
+            ),
+            "folds_with_expanded_refs_gt_baseline": sum(
+                1 for fold in folds if fold["expanded_retrieval_ref_count"] > fold["baseline_retrieval_ref_count"]
+            ),
+            "folds_with_top_hit_delta": sum(1 for fold in folds if fold["top_hit_delta"]),
+            "max_added_history_docs": max(
+                (fold["expanded_history_doc_count"] - fold["baseline_history_doc_count"] for fold in folds),
+                default=0,
+            ),
+        },
+        "baseline_packet_metrics": compute_eval_metrics(baseline_decisions, eval_outcomes, top_k=top_k),
+        "expanded_packet_metrics": compute_eval_metrics(expanded_decisions, eval_outcomes, top_k=top_k),
+        "baseline_episode_metrics": _episode_metrics(baseline_decisions, eval_outcomes, episodes, top_k=top_k),
+        "expanded_episode_metrics": _episode_metrics(expanded_decisions, eval_outcomes, episodes, top_k=top_k),
+        "folds": folds,
+    }
+
+
+def render_temporal_prior_probe_markdown(result: dict[str, Any]) -> str:
+    lines = ["# Temporal Prior Probe", "", "## Summary"]
+    lines.append(f"- baseline strict history docs: `{result['baseline_history_doc_count']}`")
+    lines.append(f"- expanded packet prior count: `{result['expanded_packet_prior_count']}`")
+    lines.append(f"- expanded total doc count: `{result['expanded_total_doc_count']}`")
+    lines.append(f"- fold count: `{result['fold_count']}`")
+    lines.extend(["", "## Prior Summary"])
+    lines.append(f"- service counts: `{result['prior_summary']['service_counts']}`")
+    lines.append(f"- severity counts: `{result['prior_summary']['severity_counts']}`")
+    lines.append(f"- recommended action counts: `{result['prior_summary']['recommended_action_counts']}`")
+    lines.extend(["", "## Compare"])
+    for key, value in result.get("compare", {}).items():
+        lines.append(f"- {key}: `{value}`")
+    lines.extend(["", "## Baseline Packet Metrics"])
+    for key, value in result.get("baseline_packet_metrics", {}).items():
+        lines.append(f"- {key}: `{value}`")
+    lines.extend(["", "## Expanded Packet Metrics"])
+    for key, value in result.get("expanded_packet_metrics", {}).items():
+        lines.append(f"- {key}: `{value}`")
+    lines.extend(["", "## Folds"])
+    for fold in result.get("folds", []):
+        lines.append(
+            f"- `{fold['episode_id']}` packets={fold['eval_packet_ids']} baseline_history={fold['baseline_history_doc_count']} expanded_priors={fold['expanded_packet_prior_doc_count']} expanded_history={fold['expanded_history_doc_count']} baseline_refs={fold['baseline_retrieval_ref_count']} expanded_refs={fold['expanded_retrieval_ref_count']} top_hit_delta={fold['top_hit_delta']}"
+        )
+    return "\n".join(lines) + "\n"
+
+
 def render_temporal_feature_experiment_markdown(result: dict[str, Any]) -> str:
     lines = ["# Temporal Feature Experiment", "", "## Coverage"]
     lines.append(f"- packet-linked training count: `{result['temporal_feature_coverage']['packet_linked_training_count']}`")

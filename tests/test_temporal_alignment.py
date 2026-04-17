@@ -11,6 +11,9 @@ from fixit_ai.temporal_alignment import (
     build_temporal_lineage,
     build_temporal_overlay_summary,
     build_temporal_overlays,
+    build_temporal_prior_catalog,
+    build_temporal_prior_probe,
+    build_temporal_prior_summary,
     run_time_aware_historical_eval,
 )
 
@@ -174,6 +177,31 @@ class TemporalAlignmentTests(unittest.TestCase):
         self.assertEqual(result["baseline_packet_metrics"]["severe_recall"], 1.0)
         self.assertEqual(result["temporal_packet_metrics"]["severe_recall"], 1.0)
         self.assertEqual(result["fold_count"], 4)
+
+    def test_temporal_prior_catalog_expands_packet_linked_exact_time_history(self):
+        priors = build_temporal_prior_catalog(ROOT)
+        summary = build_temporal_prior_summary(priors)
+        prior_by_id = {item["prior_id"]: item for item in priors}
+
+        self.assertEqual(len(priors), 10)
+        self.assertTrue(all(item["timestamp_quality"] == "exact_time_inherited" for item in priors))
+        self.assertTrue(all(item["cutoff_safe"] for item in priors))
+        self.assertEqual(prior_by_id["tprior_ipk_w001"]["severity"], "severe")
+        self.assertEqual(prior_by_id["tprior_ipk_w001"]["recommended_action"], "page_owner")
+        self.assertEqual(prior_by_id["tprior_ipk_w001"]["derived_ts_end"], "2026-04-16T11:30:00Z")
+        self.assertEqual(summary["service_counts"]["g-crm-campaign"], 7)
+        self.assertEqual(summary["severity_counts"]["severe"], 4)
+        self.assertEqual(summary["packet_linked_prior_count"], 10)
+
+    def test_temporal_prior_probe_reports_strict_history_expansion(self):
+        result = build_temporal_prior_probe(ROOT)
+        self.assertEqual(result["baseline_history_doc_count"], 4)
+        self.assertEqual(result["expanded_packet_prior_count"], 10)
+        self.assertEqual(result["fold_count"], 4)
+        self.assertGreater(result["compare"]["folds_with_expanded_history_gt_baseline"], 0)
+        self.assertGreater(result["compare"]["folds_with_expanded_refs_gt_baseline"], 0)
+        self.assertIn("baseline_packet_metrics", result)
+        self.assertIn("expanded_packet_metrics", result)
 
     def test_heuristic_episode_grouping_clusters_unbacked_related_packets_but_keeps_bounds(self):
         packets = [

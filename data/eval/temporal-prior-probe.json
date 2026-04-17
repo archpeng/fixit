@@ -1,0 +1,117 @@
+{
+  "baseline_history_doc_count": 4,
+  "expanded_packet_prior_count": 10,
+  "expanded_total_doc_count": 14,
+  "fold_count": 4,
+  "prior_summary": {
+    "packet_linked_prior_count": 10,
+    "service_counts": {
+      "g-crm-campaign": 7,
+      "prod-hq-bff-service": 3
+    },
+    "severity_counts": {
+      "severe": 4,
+      "moderate": 5,
+      "low": 1
+    },
+    "recommended_action_counts": {
+      "page_owner": 4,
+      "create_ticket": 5,
+      "observe": 1
+    },
+    "exact_time_range": {
+      "earliest": "2026-04-16T11:25:00Z",
+      "latest": "2026-04-16T12:25:00Z"
+    }
+  },
+  "compare": {
+    "folds_with_expanded_history_gt_baseline": 2,
+    "folds_with_expanded_refs_gt_baseline": 2,
+    "folds_with_top_hit_delta": 2,
+    "max_added_history_docs": 6
+  },
+  "baseline_packet_metrics": {
+    "severe_recall": 1.0,
+    "top_k_precision": 1.0,
+    "teacher_escalation_rate": 0.0,
+    "missed_severe_count": 0,
+    "missed_severe_packets": []
+  },
+  "expanded_packet_metrics": {
+    "severe_recall": 1.0,
+    "top_k_precision": 1.0,
+    "teacher_escalation_rate": 0.0,
+    "missed_severe_count": 0,
+    "missed_severe_packets": []
+  },
+  "baseline_episode_metrics": {
+    "episode_count": 4,
+    "severe_episode_recall": 1.0,
+    "top_k_episode_precision": 0.3333,
+    "missed_severe_episode_count": 0,
+    "missed_severe_episode_ids": []
+  },
+  "expanded_episode_metrics": {
+    "episode_count": 4,
+    "severe_episode_recall": 1.0,
+    "top_k_episode_precision": 0.3333,
+    "missed_severe_episode_count": 0,
+    "missed_severe_episode_ids": []
+  },
+  "folds": [
+    {
+      "episode_id": "ep_inc-compile-500",
+      "eval_packet_ids": [
+        "ipk_w001",
+        "ipk_w004",
+        "ipk_w006",
+        "ipk_w009"
+      ],
+      "baseline_history_doc_count": 0,
+      "expanded_packet_prior_doc_count": 0,
+      "expanded_history_doc_count": 0,
+      "baseline_retrieval_ref_count": 0,
+      "expanded_retrieval_ref_count": 0,
+      "top_hit_delta": false
+    },
+    {
+      "episode_id": "ep_inc-compile-warmup",
+      "eval_packet_ids": [
+        "ipk_w002",
+        "ipk_w007"
+      ],
+      "baseline_history_doc_count": 0,
+      "expanded_packet_prior_doc_count": 0,
+      "expanded_history_doc_count": 0,
+      "baseline_retrieval_ref_count": 0,
+      "expanded_retrieval_ref_count": 0,
+      "top_hit_delta": false
+    },
+    {
+      "episode_id": "ep_inc-queue-depth",
+      "eval_packet_ids": [
+        "ipk_w005"
+      ],
+      "baseline_history_doc_count": 0,
+      "expanded_packet_prior_doc_count": 2,
+      "expanded_history_doc_count": 2,
+      "baseline_retrieval_ref_count": 0,
+      "expanded_retrieval_ref_count": 2,
+      "top_hit_delta": true
+    },
+    {
+      "episode_id": "ep_inc-other-service",
+      "eval_packet_ids": [
+        "ipk_w010",
+        "ipk_w011",
+        "ipk_w012"
+      ],
+      "baseline_history_doc_count": 2,
+      "expanded_packet_prior_doc_count": 6,
+      "expanded_history_doc_count": 8,
+      "baseline_retrieval_ref_count": 6,
+      "expanded_retrieval_ref_count": 9,
+      "top_hit_delta": true
+    }
+  ]
+}
