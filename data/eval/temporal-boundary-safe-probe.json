@@ -1,0 +1,133 @@
+{
+  "fold_count": 4,
+  "strict_compare": {
+    "fold_count": 4,
+    "folds_with_boundary_safe_history_gt_strict": 3,
+    "folds_with_equality_admitted_docs": 3,
+    "equality_admitted_doc_count": 4,
+    "anti_leakage_violation_count": 0
+  },
+  "prototype_compare": {
+    "folds_with_compacted_doc_count_lt_boundary_safe": 2,
+    "folds_with_top_hit_overlap": 3,
+    "max_docs_removed_by_compaction": 4
+  },
+  "strict_packet_metrics": {
+    "severe_recall": 1.0,
+    "top_k_precision": 1.0,
+    "teacher_escalation_rate": 0.0,
+    "missed_severe_count": 0,
+    "missed_severe_packets": []
+  },
+  "boundary_safe_packet_metrics": {
+    "severe_recall": 1.0,
+    "top_k_precision": 1.0,
+    "teacher_escalation_rate": 0.0,
+    "missed_severe_count": 0,
+    "missed_severe_packets": []
+  },
+  "prototype_packet_metrics": {
+    "severe_recall": 1.0,
+    "top_k_precision": 1.0,
+    "teacher_escalation_rate": 0.0,
+    "missed_severe_count": 0,
+    "missed_severe_packets": []
+  },
+  "strict_episode_metrics": {
+    "episode_count": 4,
+    "severe_episode_recall": 1.0,
+    "top_k_episode_precision": 0.3333,
+    "missed_severe_episode_count": 0,
+    "missed_severe_episode_ids": []
+  },
+  "boundary_safe_episode_metrics": {
+    "episode_count": 4,
+    "severe_episode_recall": 1.0,
+    "top_k_episode_precision": 0.3333,
+    "missed_severe_episode_count": 0,
+    "missed_severe_episode_ids": []
+  },
+  "prototype_episode_metrics": {
+    "episode_count": 4,
+    "severe_episode_recall": 1.0,
+    "top_k_episode_precision": 0.3333,
+    "missed_severe_episode_count": 0,
+    "missed_severe_episode_ids": []
+  },
+  "folds": [
+    {
+      "episode_id": "ep_inc-compile-500",
+      "eval_packet_ids": [
+        "ipk_w001",
+        "ipk_w004",
+        "ipk_w006",
+        "ipk_w009"
+      ],
+      "strict_history_doc_count": 0,
+      "boundary_safe_history_doc_count": 0,
+      "equality_admitted_doc_count": 0,
+      "anti_leakage_violation_count": 0,
+      "boundary_safe_packet_prior_doc_count": 0,
+      "compacted_packet_prior_doc_count": 0,
+      "boundary_safe_retrieval_ref_count": 0,
+      "prototype_retrieval_ref_count": 0,
+      "prototype_top_hit_overlap": false,
+      "prototype_top_hit_overlap_count": 0,
+      "strict_history_anti_leakage_violation_count": 0
+    },
+    {
+      "episode_id": "ep_inc-compile-warmup",
+      "eval_packet_ids": [
+        "ipk_w002",
+        "ipk_w007"
+      ],
+      "strict_history_doc_count": 0,
+      "boundary_safe_history_doc_count": 1,
+      "equality_admitted_doc_count": 1,
+      "anti_leakage_violation_count": 0,
+      "boundary_safe_packet_prior_doc_count": 1,
+      "compacted_packet_prior_doc_count": 1,
+      "boundary_safe_retrieval_ref_count": 2,
+      "prototype_retrieval_ref_count": 2,
+      "prototype_top_hit_overlap": true,
+      "prototype_top_hit_overlap_count": 2,
+      "strict_history_anti_leakage_violation_count": 0
+    },
+    {
+      "episode_id": "ep_inc-queue-depth",
+      "eval_packet_ids": [
+        "ipk_w005"
+      ],
+      "strict_history_doc_count": 2,
+      "boundary_safe_history_doc_count": 3,
+      "equality_admitted_doc_count": 1,
+      "anti_leakage_violation_count": 0,
+      "boundary_safe_packet_prior_doc_count": 3,
+      "compacted_packet_prior_doc_count": 2,
+      "boundary_safe_retrieval_ref_count": 3,
+      "prototype_retrieval_ref_count": 2,
+      "prototype_top_hit_overlap": true,
+      "prototype_top_hit_overlap_count": 1,
+      "strict_history_anti_leakage_violation_count": 0
+    },
+    {
+      "episode_id": "ep_inc-other-service",
+      "eval_packet_ids": [
+        "ipk_w010",
+        "ipk_w011",
+        "ipk_w012"
+      ],
+      "strict_history_doc_count": 8,
+      "boundary_safe_history_doc_count": 10,
+      "equality_admitted_doc_count": 2,
+      "anti_leakage_violation_count": 0,
+      "boundary_safe_packet_prior_doc_count": 7,
+      "compacted_packet_prior_doc_count": 3,
+      "boundary_safe_retrieval_ref_count": 9,
+      "prototype_retrieval_ref_count": 9,
+      "prototype_top_hit_overlap": true,
+      "prototype_top_hit_overlap_count": 2,
+      "strict_history_anti_leakage_violation_count": 0
+    }
+  ]
+}

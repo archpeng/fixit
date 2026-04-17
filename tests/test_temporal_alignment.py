@@ -7,6 +7,7 @@ from fixit_ai.temporal_alignment import (
     build_episode_index,
     build_episode_index_from_records,
     build_temporal_alignment_summary,
+    build_temporal_boundary_safe_probe,
     build_temporal_feature_experiment,
     build_temporal_lineage,
     build_temporal_overlay_summary,
@@ -202,6 +203,25 @@ class TemporalAlignmentTests(unittest.TestCase):
         self.assertGreater(result["compare"]["folds_with_expanded_refs_gt_baseline"], 0)
         self.assertIn("baseline_packet_metrics", result)
         self.assertIn("expanded_packet_metrics", result)
+
+    def test_boundary_safe_cutoff_probe_reports_equality_gains_without_leakage(self):
+        result = build_temporal_boundary_safe_probe(ROOT)
+        self.assertEqual(result["strict_compare"]["fold_count"], 4)
+        self.assertGreater(result["strict_compare"]["folds_with_boundary_safe_history_gt_strict"], 0)
+        self.assertGreater(result["strict_compare"]["equality_admitted_doc_count"], 0)
+        self.assertEqual(result["strict_compare"]["anti_leakage_violation_count"], 0)
+        by_id = {item["episode_id"]: item for item in result["folds"]}
+        self.assertGreater(
+            by_id["ep_inc-compile-warmup"]["boundary_safe_history_doc_count"],
+            by_id["ep_inc-compile-warmup"]["strict_history_doc_count"],
+        )
+
+    def test_compacted_prior_ablation_reduces_docs_under_boundary_safe_cutoff(self):
+        result = build_temporal_boundary_safe_probe(ROOT)
+        self.assertGreater(result["prototype_compare"]["folds_with_compacted_doc_count_lt_boundary_safe"], 0)
+        self.assertGreater(result["prototype_compare"]["folds_with_top_hit_overlap"], 0)
+        self.assertIn("boundary_safe_packet_metrics", result)
+        self.assertIn("prototype_packet_metrics", result)
 
     def test_heuristic_episode_grouping_clusters_unbacked_related_packets_but_keeps_bounds(self):
         packets = [

@@ -82,6 +82,8 @@ def search_retrieval_index(
         results.append(
             {
                 "incident_id": incident["incident_id"],
+                "source_episode_id": incident.get("source_episode_id"),
+                "source_packet_id": incident.get("source_packet_id"),
                 "similarity_score": round(score, 4),
                 "severity": incident.get("severity", "unknown"),
                 "recommended_action": incident.get("recommended_action", "observe"),
