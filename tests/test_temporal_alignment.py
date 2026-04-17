@@ -4,10 +4,12 @@ from pathlib import Path
 
 from fixit_ai.retrieval_index import build_retrieval_index, search_retrieval_index
 from fixit_ai.temporal_alignment import (
+    build_episode_context_priors,
     build_episode_index,
     build_episode_index_from_records,
     build_temporal_alignment_summary,
     build_temporal_boundary_safe_probe,
+    build_temporal_episode_context_probe,
     build_temporal_feature_experiment,
     build_temporal_lineage,
     build_temporal_overlay_summary,
@@ -222,6 +224,32 @@ class TemporalAlignmentTests(unittest.TestCase):
         self.assertGreater(result["prototype_compare"]["folds_with_top_hit_overlap"], 0)
         self.assertIn("boundary_safe_packet_metrics", result)
         self.assertIn("prototype_packet_metrics", result)
+
+    def test_episode_context_prior_synthesis_compacts_packet_priors_by_episode(self):
+        priors = build_temporal_prior_catalog(ROOT)
+        context_priors = build_episode_context_priors(priors)
+        by_id = {item["source_episode_id"]: item for item in context_priors}
+
+        self.assertEqual(len(context_priors), 4)
+        self.assertEqual(by_id["ep_inc-compile-500"]["packet_count"], 4)
+        self.assertEqual(by_id["ep_inc-compile-500"]["severity"], "severe")
+        self.assertEqual(by_id["ep_inc-compile-500"]["recommended_action"], "page_owner")
+        self.assertEqual(by_id["ep_inc-compile-500"]["derived_ts_end"], "2026-04-16T12:10:00Z")
+        self.assertIn("episode_context_synthesized", by_id["ep_inc-compile-500"]["tags"])
+
+    def test_episode_context_probe_reports_doc_reduction_and_overlap(self):
+        result = build_temporal_episode_context_probe(ROOT)
+        self.assertEqual(result["episode_context_prior_count"], 4)
+        self.assertEqual(result["fold_count"], 4)
+        self.assertGreater(result["compare"]["folds_with_episode_context_doc_count_lt_boundary_safe"], 0)
+        self.assertGreater(result["compare"]["folds_with_top_hit_overlap"], 0)
+        by_id = {item["episode_id"]: item for item in result["folds"]}
+        self.assertLess(
+            by_id["ep_inc-other-service"]["episode_context_prior_doc_count"],
+            by_id["ep_inc-other-service"]["boundary_safe_packet_prior_doc_count"],
+        )
+        self.assertIn("boundary_safe_packet_metrics", result)
+        self.assertIn("episode_context_packet_metrics", result)
 
     def test_heuristic_episode_grouping_clusters_unbacked_related_packets_but_keeps_bounds(self):
         packets = [

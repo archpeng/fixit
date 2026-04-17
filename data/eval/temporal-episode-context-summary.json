@@ -1,0 +1,21 @@
+{
+  "packet_linked_prior_count": 4,
+  "service_counts": {
+    "g-crm-campaign": 3,
+    "prod-hq-bff-service": 1
+  },
+  "severity_counts": {
+    "severe": 1,
+    "moderate": 2,
+    "low": 1
+  },
+  "recommended_action_counts": {
+    "page_owner": 1,
+    "create_ticket": 2,
+    "observe": 1
+  },
+  "exact_time_range": {
+    "earliest": "2026-04-16T11:25:00Z",
+    "latest": "2026-04-16T12:25:00Z"
+  }
+}

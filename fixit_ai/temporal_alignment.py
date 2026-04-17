@@ -899,6 +899,54 @@ def build_temporal_prior_summary(priors: list[dict[str, Any]]) -> dict[str, Any]
     }
 
 
+def _severity_rank_label(value: str | None) -> int:
+    return {"severe": 3, "moderate": 2, "low": 1}.get(value or "", 0)
+
+
+def _action_rank(value: str | None) -> int:
+    return {"page_owner": 3, "create_ticket": 2, "observe": 1}.get(value or "", 0)
+
+
+def build_episode_context_priors(priors: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    grouped: dict[str, list[dict[str, Any]]] = {}
+    for row in priors:
+        key = row.get("source_episode_id") or row.get("source_packet_id") or row.get("prior_id") or row.get("incident_id")
+        grouped.setdefault(key, []).append(row)
+
+    synthesized: list[dict[str, Any]] = []
+    for key, rows in sorted(grouped.items()):
+        representative = max(rows, key=_prior_rank)
+        fragments: list[str] = []
+        for row in sorted(rows, key=_prior_rank, reverse=True):
+            for fragment in [part.strip() for part in (row.get("summary") or "").split("|") if part.strip()]:
+                if fragment not in fragments:
+                    fragments.append(fragment)
+        summary_parts = [*fragments[:4], f"episode_packets={len(rows)}"]
+        synthesized.append(
+            {
+                **representative,
+                "prior_id": f"tectx_{key}",
+                "incident_id": f"tectx_{key}",
+                "source_packet_id": None,
+                "source_packet_ids": [row.get("source_packet_id") for row in rows if row.get("source_packet_id")],
+                "packet_count": len(rows),
+                "summary": " | ".join(summary_parts),
+                "severity": max((row.get("severity") for row in rows), key=_severity_rank_label),
+                "recommended_action": max((row.get("recommended_action") for row in rows), key=_action_rank),
+                "derived_ts_start": min((row.get("derived_ts_start") for row in rows if row.get("derived_ts_start")), default=None),
+                "derived_ts_end": max((row.get("derived_ts_end") for row in rows if row.get("derived_ts_end")), default=None),
+                "tags": list(
+                    dict.fromkeys(
+                        [tag for row in rows for tag in (row.get("tags", []) or [])] + ["episode_context_synthesized"]
+                    )
+                ),
+                "time_source": "episode_context_prior_synthesis",
+                "time_source_refs": [row.get("source_packet_id") for row in rows if row.get("source_packet_id")],
+            }
+        )
+    return synthesized
+
+
 def build_temporal_prior_probe(root: Path | str) -> dict[str, Any]:
     root = Path(root)
     overlays = build_temporal_overlays(root)
@@ -1300,6 +1348,177 @@ def build_temporal_boundary_safe_probe(root: Path | str) -> dict[str, Any]:
         "prototype_episode_metrics": _episode_metrics(prototype_decisions, eval_outcomes, episodes, top_k=top_k),
         "folds": folds,
     }
+
+
+def build_temporal_episode_context_probe(root: Path | str) -> dict[str, Any]:
+    root = Path(root)
+    overlays = build_temporal_overlays(root)
+    thresholds = read_yaml(root / "configs/thresholds.yaml")
+    schemas = SchemaBundle(root / "schemas")
+    top_k = thresholds["student"]["evaluation"]["top_k"]
+    packets = read_jsonl(root / "data/samples/incident-packets.jsonl")
+    packet_by_id = {packet["packet_id"]: packet for packet in packets if packet.get("packet_id")}
+    outcomes = overlays["outcomes"]
+    episodes = build_episode_index(root, overlays=overlays)
+    incident_pool = [
+        row
+        for row in overlays["historical_incidents"]
+        if row.get("cutoff_safe") and row.get("timestamp_quality") in {"exact_window_time", "exact_time_inherited"}
+    ]
+    raw_prior_pool = build_temporal_prior_catalog(root, overlays=overlays, episodes=episodes, packets=packets)
+    all_context_priors = build_episode_context_priors(raw_prior_pool)
+
+    boundary_safe_decisions: list[dict[str, Any]] = []
+    episode_context_decisions: list[dict[str, Any]] = []
+    eval_outcomes: list[dict[str, Any]] = []
+    folds: list[dict[str, Any]] = []
+
+    for episode in episodes:
+        episode_id = episode["episode_id"]
+        episode_start_ts = episode.get("episode_start_ts")
+        eval_packet_ids = set(episode.get("packet_ids", []))
+        eval_packets = [packet_by_id[packet_id] for packet_id in episode.get("packet_ids", []) if packet_id in packet_by_id]
+
+        training_rows = []
+        for row in overlays["training_examples"]:
+            quality = row.get("timestamp_quality")
+            row_packet_id = row.get("packet_id")
+            if quality == "unknown_time":
+                training_rows.append(row)
+                continue
+            if not row.get("cutoff_safe"):
+                continue
+            if row_packet_id in eval_packet_ids:
+                continue
+            if row.get("derived_ts_end") and episode_start_ts and row["derived_ts_end"] < episode_start_ts:
+                training_rows.append(row)
+
+        boundary_incidents, _, boundary_incident_violations = _admissible_history_rows(
+            incident_pool,
+            episode_start_ts,
+            eval_packet_ids,
+            episode_id,
+            inclusive=True,
+        )
+        boundary_priors, _, boundary_prior_violations = _admissible_history_rows(
+            raw_prior_pool,
+            episode_start_ts,
+            eval_packet_ids,
+            episode_id,
+            inclusive=True,
+        )
+        episode_context_priors = build_episode_context_priors(boundary_priors)
+        context_violations = 0
+
+        boundary_history = [*boundary_incidents, *boundary_priors]
+        episode_context_history = [*boundary_incidents, *episode_context_priors]
+
+        model, _ = train_student_model(training_rows, thresholds)
+        boundary_index = build_retrieval_index(boundary_history)
+        context_index = build_retrieval_index(episode_context_history)
+        boundary_retrieval = {
+            packet["packet_id"]: search_retrieval_index(
+                packet,
+                boundary_index,
+                top_k=top_k,
+                reference_ts=packet.get("ts_start"),
+                recency_half_life_minutes=60,
+            )
+            for packet in eval_packets
+        }
+        context_retrieval = {
+            packet["packet_id"]: search_retrieval_index(
+                packet,
+                context_index,
+                top_k=top_k,
+                reference_ts=packet.get("ts_start"),
+                recency_half_life_minutes=60,
+            )
+            for packet in eval_packets
+        }
+        boundary_scores = predict_packets(model, eval_packets, boundary_retrieval)
+        context_scores = predict_packets(model, eval_packets, context_retrieval)
+        boundary_fold_decisions = build_triage_decisions(eval_packets, boundary_retrieval, boundary_scores, [], thresholds, schemas)
+        context_fold_decisions = build_triage_decisions(eval_packets, context_retrieval, context_scores, [], thresholds, schemas)
+        fold_outcomes = [row for row in outcomes if row.get("packet_id") in eval_packet_ids]
+        eval_outcomes.extend(fold_outcomes)
+        boundary_safe_decisions.extend(boundary_fold_decisions)
+        episode_context_decisions.extend(context_fold_decisions)
+
+        top_hit_overlap_count = 0
+        for packet in eval_packets:
+            packet_id = packet["packet_id"]
+            boundary_top = next(iter(boundary_retrieval.get(packet_id, [])), None)
+            context_top = next(iter(context_retrieval.get(packet_id, [])), None)
+            boundary_key = (boundary_top or {}).get("source_episode_id") or (boundary_top or {}).get("incident_id")
+            context_key = (context_top or {}).get("source_episode_id") or (context_top or {}).get("incident_id")
+            if boundary_key and context_key and boundary_key == context_key:
+                top_hit_overlap_count += 1
+
+        folds.append(
+            {
+                "episode_id": episode_id,
+                "eval_packet_ids": sorted(eval_packet_ids),
+                "boundary_safe_packet_prior_doc_count": len(boundary_priors),
+                "episode_context_prior_doc_count": len(episode_context_priors),
+                "boundary_safe_history_doc_count": len(boundary_history),
+                "episode_context_history_doc_count": len(episode_context_history),
+                "boundary_safe_retrieval_ref_count": sum(len(item) for item in boundary_retrieval.values()),
+                "episode_context_retrieval_ref_count": sum(len(item) for item in context_retrieval.values()),
+                "anti_leakage_violation_count": boundary_incident_violations + boundary_prior_violations + context_violations,
+                "top_hit_overlap": top_hit_overlap_count > 0,
+                "top_hit_overlap_count": top_hit_overlap_count,
+            }
+        )
+
+    return {
+        "episode_context_prior_count": len(all_context_priors),
+        "fold_count": len(episodes),
+        "episode_context_prior_summary": build_temporal_prior_summary(all_context_priors),
+        "compare": {
+            "folds_with_episode_context_doc_count_lt_boundary_safe": sum(
+                1
+                for fold in folds
+                if fold["episode_context_prior_doc_count"] < fold["boundary_safe_packet_prior_doc_count"]
+            ),
+            "folds_with_top_hit_overlap": sum(1 for fold in folds if fold["top_hit_overlap"]),
+            "max_docs_removed_by_episode_context": max(
+                (
+                    fold["boundary_safe_packet_prior_doc_count"] - fold["episode_context_prior_doc_count"]
+                    for fold in folds
+                ),
+                default=0,
+            ),
+            "anti_leakage_violation_count": sum(fold["anti_leakage_violation_count"] for fold in folds),
+        },
+        "boundary_safe_packet_metrics": compute_eval_metrics(boundary_safe_decisions, eval_outcomes, top_k=top_k),
+        "episode_context_packet_metrics": compute_eval_metrics(episode_context_decisions, eval_outcomes, top_k=top_k),
+        "boundary_safe_episode_metrics": _episode_metrics(boundary_safe_decisions, eval_outcomes, episodes, top_k=top_k),
+        "episode_context_episode_metrics": _episode_metrics(episode_context_decisions, eval_outcomes, episodes, top_k=top_k),
+        "folds": folds,
+    }
+
+
+def render_temporal_episode_context_probe_markdown(result: dict[str, Any]) -> str:
+    lines = ["# Temporal Episode-context Probe", "", "## Summary"]
+    lines.append(f"- episode-context prior count: `{result['episode_context_prior_count']}`")
+    lines.append(f"- fold count: `{result['fold_count']}`")
+    lines.append(f"- episode-context prior summary: `{result['episode_context_prior_summary']}`")
+    lines.extend(["", "## Compare"])
+    for key, value in result.get("compare", {}).items():
+        lines.append(f"- {key}: `{value}`")
+    lines.extend(["", "## Boundary-safe Packet Metrics"])
+    for key, value in result.get("boundary_safe_packet_metrics", {}).items():
+        lines.append(f"- {key}: `{value}`")
+    lines.extend(["", "## Episode-context Packet Metrics"])
+    for key, value in result.get("episode_context_packet_metrics", {}).items():
+        lines.append(f"- {key}: `{value}`")
+    lines.extend(["", "## Folds"])
+    for fold in result.get("folds", []):
+        lines.append(
+            f"- `{fold['episode_id']}` packets={fold['eval_packet_ids']} raw_priors={fold['boundary_safe_packet_prior_doc_count']} episode_context_priors={fold['episode_context_prior_doc_count']} boundary_safe_history={fold['boundary_safe_history_doc_count']} episode_context_history={fold['episode_context_history_doc_count']} overlap={fold['top_hit_overlap']} leakage_violations={fold['anti_leakage_violation_count']}"
+        )
+    return "\n".join(lines) + "\n"
 
 
 def render_temporal_boundary_safe_probe_markdown(result: dict[str, Any]) -> str:
