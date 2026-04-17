@@ -36,8 +36,12 @@ def _select_teacher_payloads(
 ) -> list[dict]:
     packet_by_id = {packet["packet_id"]: packet for packet in packets}
     cfg = teacher_budget["trigger_thresholds"]
+    max_reviews = teacher_budget["max_reviews_per_run"]
     selected_payloads: list[dict] = []
-    for score in scores:
+    selected_packet_ids: set[str] = set()
+
+    ranked_scores = sorted(scores, key=_severity_rank, reverse=True)
+    for score in ranked_scores:
         packet = packet_by_id[score["packet_id"]]
         triggers: list[str] = []
         if score.get("student_confidence", 0.0) < cfg["confidence_below"]:
@@ -56,9 +60,24 @@ def _select_teacher_payloads(
         selected_payloads.append(
             build_teacher_payload(packet, retrieval_by_packet.get(packet["packet_id"], []), score, triggers)
         )
+        selected_packet_ids.add(packet["packet_id"])
+
+    if teacher_budget.get("coverage_backfill_remaining_unreviewed", False) and len(selected_payloads) < max_reviews:
+        coverage_trigger = teacher_budget.get("coverage_backfill_trigger", "bounded_review_gap_backfill")
+        for score in ranked_scores:
+            packet_id = score["packet_id"]
+            if packet_id in selected_packet_ids:
+                continue
+            packet = packet_by_id[packet_id]
+            selected_payloads.append(
+                build_teacher_payload(packet, retrieval_by_packet.get(packet_id, []), score, [coverage_trigger])
+            )
+            selected_packet_ids.add(packet_id)
+            if len(selected_payloads) >= max_reviews:
+                break
 
     selected_payloads.sort(key=_severity_rank, reverse=True)
-    return selected_payloads[: teacher_budget["max_reviews_per_run"]]
+    return selected_payloads[:max_reviews]
 
 
 def select_teacher_reviews(

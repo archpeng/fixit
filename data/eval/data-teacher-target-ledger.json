@@ -1,5 +1,5 @@
 {
-  "recommended_next_slice": "DW2.S1_TEACHER_REVIEW_BATCH_AND_LABEL_SOURCE_EXPANSION",
+  "recommended_next_slice": "DW3.S1_SCHEMA_STABILITY_HISTORY_AND_PHASE2_REFRESH",
   "execution_order": [
     "DW1.S1_MULTI_PILOT_REPLAY_COVERAGE_EXPANSION",
     "DW2.S1_TEACHER_REVIEW_BATCH_AND_LABEL_SOURCE_EXPANSION",
@@ -18,15 +18,15 @@
     "DW2": {
       "slice_id": "DW2.S1_TEACHER_REVIEW_BATCH_AND_LABEL_SOURCE_EXPANSION",
       "focus": "grow reviewed teacher volume and keep label-source mix moving with provenance",
-      "current_teacher_reviewed_count": 7,
+      "current_teacher_reviewed_count": 10,
       "target_teacher_reviewed_count": 10,
-      "teacher_reviewed_count_gap": 3,
+      "teacher_reviewed_count_gap": 0,
       "current_teacher_fallback_ratio": 0.0,
       "target_teacher_fallback_ratio_max": 0.2,
       "teacher_fallback_ratio_gap": 0.0,
       "current_teacher_rubric_label_count": 1,
       "teacher_rubric_label_growth_needed": true,
-      "status": "open"
+      "status": "ready"
     },
     "DW3": {
       "slice_id": "DW3.S1_SCHEMA_STABILITY_HISTORY_AND_PHASE2_REFRESH",

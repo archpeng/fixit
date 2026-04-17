@@ -1,7 +1,10 @@
-{"packet_id": "ipk_w002", "service": "g-crm-campaign", "operation": "ADCService/Compile", "triggers": ["rule_alert_score_conflict"], "state": "reviewed"}
 {"packet_id": "ipk_w004", "service": "g-crm-campaign", "operation": "ADCService/Compile", "triggers": ["high_novelty", "rule_missed_high_score"], "state": "reviewed"}
 {"packet_id": "ipk_w006", "service": "g-crm-campaign", "operation": "ADCService/Compile", "triggers": ["high_novelty", "rule_missed_high_score"], "state": "reviewed"}
-{"packet_id": "ipk_w007", "service": "g-crm-campaign", "operation": "ADCService/Compile", "triggers": ["rule_alert_score_conflict"], "state": "reviewed"}
-{"packet_id": "ipk_w010", "service": "prod-hq-bff-service", "operation": "POST /brand/detail", "triggers": ["high_novelty"], "state": "reviewed"}
 {"packet_id": "ipk_w011", "service": "prod-hq-bff-service", "operation": "POST /brand/detail", "triggers": ["high_novelty"], "state": "reviewed"}
+{"packet_id": "ipk_w010", "service": "prod-hq-bff-service", "operation": "POST /brand/detail", "triggers": ["high_novelty"], "state": "reviewed"}
 {"packet_id": "ipk_w012", "service": "prod-hq-bff-service", "operation": "POST /brand/detail", "triggers": ["high_novelty"], "state": "reviewed"}
+{"packet_id": "ipk_w002", "service": "g-crm-campaign", "operation": "ADCService/Compile", "triggers": ["rule_alert_score_conflict"], "state": "reviewed"}
+{"packet_id": "ipk_w007", "service": "g-crm-campaign", "operation": "ADCService/Compile", "triggers": ["rule_alert_score_conflict"], "state": "reviewed"}
+{"packet_id": "ipk_w001", "service": "g-crm-campaign", "operation": "ADCService/Compile", "triggers": ["bounded_review_gap_backfill"], "state": "reviewed"}
+{"packet_id": "ipk_w009", "service": "g-crm-campaign", "operation": "ADCService/Compile", "triggers": ["bounded_review_gap_backfill"], "state": "reviewed"}
+{"packet_id": "ipk_w005", "service": "g-crm-campaign", "operation": "ADCService/Compile", "triggers": ["bounded_review_gap_backfill"], "state": "reviewed"}

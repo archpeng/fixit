@@ -59,40 +59,40 @@ class DataTeacherAccumulationTests(unittest.TestCase):
         self.assertEqual(baseline["predecessor_verdict"], "not-yet")
         self.assertEqual(baseline["recommended_successor"], "ALERT_INTELLIGENCE_DATA_AND_TEACHER_ACCUMULATION")
         self.assertEqual(baseline["pilot_service_count"], 2)
-        self.assertEqual(baseline["teacher_request_count"], 7)
-        self.assertEqual(baseline["teacher_reviewed_count"], 7)
+        self.assertEqual(baseline["teacher_request_count"], 10)
+        self.assertEqual(baseline["teacher_reviewed_count"], 10)
         self.assertEqual(baseline["teacher_fallback_count"], 0)
-        self.assertEqual(targets["recommended_next_slice"], "DW2.S1_TEACHER_REVIEW_BATCH_AND_LABEL_SOURCE_EXPANSION")
+        self.assertEqual(targets["recommended_next_slice"], "DW3.S1_SCHEMA_STABILITY_HISTORY_AND_PHASE2_REFRESH")
         self.assertEqual(targets["workstreams"]["DW1"]["pilot_service_count_gap"], 0)
 
     def test_teacher_accumulation_ledger_exceeds_predecessor_baseline(self):
         ledger = build_teacher_accumulation_ledger(ROOT)
         self.assertEqual(ledger["predecessor_teacher_reviewed_count"], 1)
-        self.assertEqual(ledger["current_teacher_reviewed_count"], 7)
-        self.assertEqual(ledger["teacher_reviewed_delta"], 6)
+        self.assertEqual(ledger["current_teacher_reviewed_count"], 10)
+        self.assertEqual(ledger["teacher_reviewed_delta"], 9)
         self.assertEqual(
             ledger["current_teacher_packet_ids"],
-            ["ipk_w002", "ipk_w004", "ipk_w006", "ipk_w007", "ipk_w010", "ipk_w011", "ipk_w012"],
+            ["ipk_w001", "ipk_w002", "ipk_w004", "ipk_w005", "ipk_w006", "ipk_w007", "ipk_w009", "ipk_w010", "ipk_w011", "ipk_w012"],
         )
         self.assertEqual(ledger["label_teacher_rubric_count"], 1)
-        self.assertEqual(ledger["training_backfill_count"], 7)
+        self.assertEqual(ledger["training_backfill_count"], 10)
         self.assertEqual(ledger["teacher_label_gap"], 0)
 
     def test_teacher_daily_review_batch_readout_is_script_backed(self):
         batch = build_teacher_daily_review_batch(ROOT)
-        self.assertEqual(batch["selected_count"], 7)
-        self.assertEqual(batch["reviewed_count"], 7)
+        self.assertEqual(batch["selected_count"], 10)
+        self.assertEqual(batch["reviewed_count"], 10)
         self.assertEqual(batch["fallback_count"], 0)
-        self.assertEqual(batch["reviewed_packet_ids"], ["ipk_w002", "ipk_w004", "ipk_w006", "ipk_w007", "ipk_w010", "ipk_w011", "ipk_w012"])
-        self.assertEqual(batch["remaining_to_phase2_target"], 3)
+        self.assertEqual(batch["reviewed_packet_ids"], ["ipk_w001", "ipk_w002", "ipk_w004", "ipk_w005", "ipk_w006", "ipk_w007", "ipk_w009", "ipk_w010", "ipk_w011", "ipk_w012"])
+        self.assertEqual(batch["remaining_to_phase2_target"], 0)
 
     def test_human_writeback_audit_covers_reviewed_packets(self):
         audit = build_human_writeback_audit(ROOT)
-        self.assertEqual(audit["target_packet_ids"], ["ipk_w002", "ipk_w004", "ipk_w006", "ipk_w007", "ipk_w010", "ipk_w011", "ipk_w012"])
-        self.assertEqual(audit["outcome_backfilled_count"], 7)
-        self.assertEqual(audit["training_backfilled_count"], 7)
-        self.assertEqual(audit["incident_backfilled_count"], 7)
-        self.assertEqual(audit["fully_backfilled_count"], 7)
+        self.assertEqual(audit["target_packet_ids"], ["ipk_w001", "ipk_w002", "ipk_w004", "ipk_w005", "ipk_w006", "ipk_w007", "ipk_w009", "ipk_w010", "ipk_w011", "ipk_w012"])
+        self.assertEqual(audit["outcome_backfilled_count"], 10)
+        self.assertEqual(audit["training_backfilled_count"], 10)
+        self.assertEqual(audit["incident_backfilled_count"], 10)
+        self.assertEqual(audit["fully_backfilled_count"], 10)
         self.assertEqual(audit["missing_outcome_packet_ids"], [])
         self.assertEqual(audit["missing_training_packet_ids"], [])
         self.assertEqual(audit["missing_incident_packet_ids"], [])
@@ -109,13 +109,13 @@ class DataTeacherAccumulationTests(unittest.TestCase):
 
     def test_volume_capacity_routes_to_daily_review_append_when_ceiling_reaches_target(self):
         capacity = build_volume_capacity(ROOT)
-        self.assertEqual(capacity["current_reviewed_count"], 7)
+        self.assertEqual(capacity["current_reviewed_count"], 10)
         self.assertEqual(capacity["current_packet_count"], 10)
-        self.assertEqual(capacity["visible_unreviewed_remainder"], 3)
+        self.assertEqual(capacity["visible_unreviewed_remainder"], 0)
         self.assertEqual(capacity["visible_maximum_reviewed_ceiling"], 10)
-        self.assertEqual(capacity["remaining_to_phase2_target"], 3)
-        self.assertEqual(capacity["next_slice"], "RW2B.S1_DAILY_REVIEW_APPEND_AND_GAP_BURNDOWN")
-        self.assertEqual(capacity["routing_reason"], "current bounded packet supply can clear reviewed-volume target")
+        self.assertEqual(capacity["remaining_to_phase2_target"], 0)
+        self.assertEqual(capacity["next_slice"], "DV2.S1_NEXT_DISTINCT_DATE_SCHEMA_PROGRESS_CHECKPOINT")
+        self.assertEqual(capacity["routing_reason"], "reviewed-volume target is already met within the current bounded packet pool")
 
     def test_schema_stability_history_and_phase2_refresh_freeze_not_yet(self):
         baseline = build_accumulation_baseline(ROOT, reference_date=date(2026, 4, 16))
@@ -126,7 +126,7 @@ class DataTeacherAccumulationTests(unittest.TestCase):
         self.assertGreaterEqual(history["schema_file_count"], 3)
         statuses = {item["criterion_id"]: item["status"] for item in refresh["criteria"]}
         self.assertEqual(statuses["multi_pilot_replay_coverage"], "met")
-        self.assertEqual(statuses["teacher_reviewed_volume_growth"], "partial")
+        self.assertEqual(statuses["teacher_reviewed_volume_growth"], "met")
         self.assertEqual(statuses["schema_stability_window"], "unmet")
         self.assertEqual(refresh["verdict"], "not-yet")
         self.assertEqual(refresh["recommended_successor"], "ALERT_INTELLIGENCE_DATA_AND_TEACHER_ACCUMULATION_FOLLOWUP")
@@ -169,7 +169,7 @@ class DataTeacherAccumulationTests(unittest.TestCase):
         closeout = build_family_closeout(baseline, teacher_ledger, history, refresh)
         self.assertEqual(closeout["family_verdict"], "accept_with_residuals")
         self.assertEqual(closeout["recommended_successor"], "ALERT_INTELLIGENCE_DATA_AND_TEACHER_ACCUMULATION_FOLLOWUP")
-        self.assertIn("teacher volume still below phase-2 threshold", closeout["residuals"])
+        self.assertNotIn("teacher volume still below phase-2 threshold", closeout["residuals"])
 
     def test_followup_family_closeout_requires_new_residual_successor(self):
         baseline = build_accumulation_baseline(ROOT, reference_date=date(2026, 4, 16))
@@ -182,7 +182,7 @@ class DataTeacherAccumulationTests(unittest.TestCase):
         self.assertEqual(closeout["family"], "ALERT_INTELLIGENCE_DATA_AND_TEACHER_ACCUMULATION_FOLLOWUP")
         self.assertEqual(closeout["family_verdict"], "accept_with_residuals")
         self.assertEqual(closeout["recommended_successor"], "ALERT_INTELLIGENCE_DATA_AND_TEACHER_ACCUMULATION_STABILITY_AND_VOLUME_RESIDUAL")
-        self.assertIn("teacher volume still below phase-2 threshold", closeout["residuals"])
+        self.assertNotIn("teacher volume still below phase-2 threshold", closeout["residuals"])
         self.assertIn("schema stability window still below 14 days", closeout["residuals"])
 
     def test_residual_phase2_recheck_and_closeout_require_daily_schema_successor(self):
@@ -196,7 +196,7 @@ class DataTeacherAccumulationTests(unittest.TestCase):
         self.assertEqual(closeout["family"], "ALERT_INTELLIGENCE_DATA_AND_TEACHER_ACCUMULATION_STABILITY_AND_VOLUME_RESIDUAL")
         self.assertEqual(closeout["family_verdict"], "accept_with_residuals")
         self.assertEqual(closeout["recommended_successor"], "ALERT_INTELLIGENCE_DATA_AND_TEACHER_ACCUMULATION_DAILY_VOLUME_AND_SCHEMA_RESIDUAL")
-        self.assertIn("teacher volume still below phase-2 threshold", closeout["residuals"])
+        self.assertNotIn("teacher volume still below phase-2 threshold", closeout["residuals"])
         self.assertIn("schema stability window still below 14 days", closeout["residuals"])
 
     def test_markdown_reports_contain_current_sections(self):
@@ -255,7 +255,7 @@ class DataTeacherAccumulationTests(unittest.TestCase):
         self.assertIn("## Human Write-back Coverage", writeback_markdown)
         self.assertIn("fully backfilled count", writeback_markdown)
         self.assertIn("## Review Volume Capacity", volume_capacity_markdown)
-        self.assertIn("RW2B.S1_DAILY_REVIEW_APPEND_AND_GAP_BURNDOWN", volume_capacity_markdown)
+        self.assertIn("DV2.S1_NEXT_DISTINCT_DATE_SCHEMA_PROGRESS_CHECKPOINT", volume_capacity_markdown)
         self.assertIn("## Schema Day-span Progress", schema_progress_markdown)
         self.assertIn("same-day snapshots do not count as multi-day schema stability", schema_progress_markdown)
         self.assertIn("ALERT_INTELLIGENCE_DATA_AND_TEACHER_ACCUMULATION_STABILITY_AND_VOLUME_RESIDUAL", followup_closeout_markdown)

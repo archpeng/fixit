@@ -14,8 +14,10 @@
           "internal-server-error"
         ],
         "source_packet_ids": [
+          "ipk_w001",
           "ipk_w004",
-          "ipk_w006"
+          "ipk_w006",
+          "ipk_w009"
         ]
       },
       "tokens": {
@@ -81,6 +83,9 @@
           "queue",
           "depth",
           "transient"
+        ],
+        "source_packet_ids": [
+          "ipk_w005"
         ]
       },
       "tokens": {

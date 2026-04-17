@@ -12,6 +12,5 @@
 - schema stability history now preserves append-only checkpoints
 
 ## Residuals
-- teacher volume still below phase-2 threshold
 - schema stability window still below 14 days
 - phase-2 readiness remains not-yet after refreshed followup evidence

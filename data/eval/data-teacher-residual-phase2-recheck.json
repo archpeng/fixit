@@ -7,8 +7,8 @@
     },
     {
       "criterion_id": "reviewed_teacher_volume_growth",
-      "status": "partial",
-      "rationale": "reviewed=7 remaining=3 target=10"
+      "status": "met",
+      "rationale": "reviewed=10 remaining=0 target=10"
     },
     {
       "criterion_id": "schema_day_span_progress",
@@ -17,8 +17,8 @@
     }
   ],
   "summary": {
-    "met": 1,
-    "partial": 1,
+    "met": 2,
+    "partial": 0,
     "unmet": 1
   },
   "verdict": "not-yet",

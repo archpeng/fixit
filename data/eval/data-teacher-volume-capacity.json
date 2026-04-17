@@ -1,10 +1,13 @@
 {
-  "current_reviewed_count": 7,
+  "current_reviewed_count": 10,
   "reviewed_packet_ids": [
+    "ipk_w001",
     "ipk_w002",
     "ipk_w004",
+    "ipk_w005",
     "ipk_w006",
     "ipk_w007",
+    "ipk_w009",
     "ipk_w010",
     "ipk_w011",
     "ipk_w012"
@@ -22,15 +25,11 @@
     "ipk_w011",
     "ipk_w012"
   ],
-  "visible_unreviewed_remainder": 3,
-  "visible_unreviewed_packet_ids": [
-    "ipk_w001",
-    "ipk_w005",
-    "ipk_w009"
-  ],
+  "visible_unreviewed_remainder": 0,
+  "visible_unreviewed_packet_ids": [],
   "visible_maximum_reviewed_ceiling": 10,
   "phase2_target_reviewed_count": 10,
-  "remaining_to_phase2_target": 3,
+  "remaining_to_phase2_target": 0,
   "runtime_allowlist_services": [
     "g-crm-campaign",
     "prod-hq-bff-service"
@@ -44,6 +43,6 @@
     "prod-hq-bff-service"
   ],
   "services_without_candidates": [],
-  "next_slice": "RW2B.S1_DAILY_REVIEW_APPEND_AND_GAP_BURNDOWN",
-  "routing_reason": "current bounded packet supply can clear reviewed-volume target"
+  "next_slice": "DV2.S1_NEXT_DISTINCT_DATE_SCHEMA_PROGRESS_CHECKPOINT",
+  "routing_reason": "reviewed-volume target is already met within the current bounded packet pool"
 }

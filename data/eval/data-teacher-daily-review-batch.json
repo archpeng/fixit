@@ -1,20 +1,23 @@
 {
   "selection_lane": "bounded_teacher_hard_case_batch",
-  "max_reviews_per_run": 7,
-  "max_tokens_per_run": 14000,
-  "selected_count": 7,
-  "reviewed_count": 7,
+  "max_reviews_per_run": 10,
+  "max_tokens_per_run": 20000,
+  "selected_count": 10,
+  "reviewed_count": 10,
   "fallback_count": 0,
   "reviewed_packet_ids": [
+    "ipk_w001",
     "ipk_w002",
     "ipk_w004",
+    "ipk_w005",
     "ipk_w006",
     "ipk_w007",
+    "ipk_w009",
     "ipk_w010",
     "ipk_w011",
     "ipk_w012"
   ],
   "fallback_packet_ids": [],
   "review_rate": 1.0,
-  "remaining_to_phase2_target": 3
+  "remaining_to_phase2_target": 0
 }

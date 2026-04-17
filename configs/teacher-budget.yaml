@@ -1,6 +1,8 @@
-max_reviews_per_run: 7
-max_tokens_per_run: 14000
+max_reviews_per_run: 10
+max_tokens_per_run: 20000
 fallback_action: send_to_human_review
+coverage_backfill_remaining_unreviewed: true
+coverage_backfill_trigger: bounded_review_gap_backfill
 trigger_thresholds:
   confidence_below: 0.36
   novelty_at_or_above: 0.85

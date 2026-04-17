@@ -12,6 +12,5 @@
 - schema gate is now interpreted through distinct-date progress instead of same-day snapshot count
 
 ## Residuals
-- teacher volume still below phase-2 threshold
 - schema stability window still below 14 days
 - phase-2 readiness remains not-yet after residual-family recheck

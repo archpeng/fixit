@@ -6,7 +6,7 @@
         0.25
       ],
       "count": 6,
-      "avg_score": 0.0265,
+      "avg_score": 0.0244,
       "actual_severe_rate": 0.0
     },
     {
@@ -33,7 +33,7 @@
         1.0
       ],
       "count": 4,
-      "avg_score": 0.9755,
+      "avg_score": 0.981,
       "actual_severe_rate": 1.0
     }
   ],

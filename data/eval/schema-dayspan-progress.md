@@ -5,7 +5,7 @@
 - latest observed date: `2026-04-17`
 - distinct observed dates: `['2026-04-17']`
 - distinct observed date count: `1`
-- snapshot count: `8`
+- snapshot count: `10`
 - current elapsed days: `0`
 - remaining days to target: `14`
 - schema gate status: `blocked`

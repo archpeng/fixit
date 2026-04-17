@@ -4,7 +4,7 @@
   "current_fingerprint": "eca31e752669c28489d4b90c2bef72a3d146cd91ad70c742be1a36e1a6acd491",
   "first_observed_date": "2026-04-17",
   "current_elapsed_days": 0,
-  "snapshot_count": 8,
+  "snapshot_count": 10,
   "snapshots": [
     {
       "date": "2026-04-17",
@@ -43,6 +43,16 @@
     {
       "date": "2026-04-17",
       "captured_at": "2026-04-17T02:05:41Z",
+      "fingerprint": "eca31e752669c28489d4b90c2bef72a3d146cd91ad70c742be1a36e1a6acd491"
+    },
+    {
+      "date": "2026-04-17",
+      "captured_at": "2026-04-17T02:41:45Z",
+      "fingerprint": "eca31e752669c28489d4b90c2bef72a3d146cd91ad70c742be1a36e1a6acd491"
+    },
+    {
+      "date": "2026-04-17",
+      "captured_at": "2026-04-17T02:43:33Z",
       "fingerprint": "eca31e752669c28489d4b90c2bef72a3d146cd91ad70c742be1a36e1a6acd491"
     }
   ]

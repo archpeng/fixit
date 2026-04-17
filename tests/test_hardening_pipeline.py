@@ -111,12 +111,12 @@ class HardeningPipelineTests(unittest.TestCase):
             self.teacher_budget,
             seed_judgements=read_jsonl(ROOT / "data/eval/replay/manual_teacher_judgements.jsonl"),
         )
-        self.assertEqual(workflow["summary"]["selected_count"], 7)
-        self.assertEqual(workflow["summary"]["reviewed_count"], 7)
+        self.assertEqual(workflow["summary"]["selected_count"], 10)
+        self.assertEqual(workflow["summary"]["reviewed_count"], 10)
         self.assertEqual(workflow["summary"]["fallback_count"], 0)
         self.assertEqual(
             {item["packet_id"] for item in workflow["reviews"]},
-            {"ipk_w002", "ipk_w004", "ipk_w006", "ipk_w007", "ipk_w010", "ipk_w011", "ipk_w012"},
+            {"ipk_w001", "ipk_w002", "ipk_w004", "ipk_w005", "ipk_w006", "ipk_w007", "ipk_w009", "ipk_w010", "ipk_w011", "ipk_w012"},
         )
 
     def test_live_first_enrichment_prefers_live_then_fallback(self):
@@ -185,7 +185,7 @@ class HardeningPipelineTests(unittest.TestCase):
         self.assertIn("data_freshness", report)
         self.assertIn("enrichment_usage", report)
         self.assertIn("teacher_queue", report)
-        self.assertEqual(report["teacher_queue"]["reviewed_count"], 7)
+        self.assertEqual(report["teacher_queue"]["reviewed_count"], 10)
         self.assertEqual(report["teacher_queue"]["fallback_count"], 0)
         markdown = render_shadow_report_markdown(report)
         self.assertIn("Data Freshness", markdown)

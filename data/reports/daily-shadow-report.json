@@ -20,18 +20,27 @@
   "metrics": {
     "severe_recall": 1.0,
     "top_k_precision": 1.0,
-    "teacher_escalation_rate": 0.7,
+    "teacher_escalation_rate": 1.0,
     "missed_severe_count": 0,
     "missed_severe_packets": []
   },
   "top_severe_candidates": [
+    {
+      "packet_id": "ipk_w001",
+      "service": "g-crm-campaign",
+      "operation": "ADCService/Compile",
+      "final_priority": "P1",
+      "final_action": "page_owner",
+      "student_score": 0.9956,
+      "teacher_used": true
+    },
     {
       "packet_id": "ipk_w004",
       "service": "g-crm-campaign",
       "operation": "ADCService/Compile",
       "final_priority": "P1",
       "final_action": "page_owner",
-      "student_score": 0.9808,
+      "student_score": 0.9779,
       "teacher_used": true
     },
     {
@@ -40,17 +49,8 @@
       "operation": "ADCService/Compile",
       "final_priority": "P1",
       "final_action": "page_owner",
-      "student_score": 0.983,
+      "student_score": 0.9791,
       "teacher_used": true
-    },
-    {
-      "packet_id": "ipk_w001",
-      "service": "g-crm-campaign",
-      "operation": "ADCService/Compile",
-      "final_priority": "P1",
-      "final_action": "page_owner",
-      "student_score": 0.9927,
-      "teacher_used": false
     }
   ],
   "rule_missed_high_ranked": [
@@ -60,7 +60,7 @@
       "operation": "ADCService/Compile",
       "final_priority": "P1",
       "final_action": "page_owner",
-      "student_score": 0.9808,
+      "student_score": 0.9779,
       "teacher_used": true
     },
     {
@@ -69,26 +69,11 @@
       "operation": "ADCService/Compile",
       "final_priority": "P1",
       "final_action": "page_owner",
-      "student_score": 0.983,
+      "student_score": 0.9791,
       "teacher_used": true
     }
   ],
   "teacher_reviewed_hard_cases": [
-    {
-      "packet_id": "ipk_w002",
-      "severity": 2,
-      "customer_impact": 1,
-      "scope": 1,
-      "novelty": 2,
-      "urgency": 2,
-      "confidence": 0.61,
-      "recommended_action": "create_ticket",
-      "evidence": [
-        "latency-only window crossed the low-confidence review bar and already has a rule hit",
-        "traffic rose but blast radius stayed bounded to the current pilot lane",
-        "historical brand/detail style cases usually create tickets rather than pages when customer impact is limited"
-      ]
-    },
     {
       "packet_id": "ipk_w004",
       "severity": 4,
@@ -120,18 +105,18 @@
       ]
     },
     {
-      "packet_id": "ipk_w007",
+      "packet_id": "ipk_w011",
       "severity": 2,
       "customer_impact": 1,
-      "scope": 1,
-      "novelty": 2,
+      "scope": 2,
+      "novelty": 3,
       "urgency": 2,
-      "confidence": 0.58,
+      "confidence": 0.59,
       "recommended_action": "create_ticket",
       "evidence": [
-        "brief compile spike recovered quickly but still conflicts with the current low-score rule path",
-        "customer impact stayed bounded and no sustained incident followed",
-        "keeping one low-severity rule-conflict sample improves calibration coverage"
+        "brand detail retry-recovered timeout window remains novel inside the bounded allowlist",
+        "traffic and latency both exceed the candidate threshold without showing severe customer impact",
+        "reviewing this case expands non-compile teacher coverage without widening runtime scope"
       ]
     },
     {
@@ -150,21 +135,6 @@
       ]
     },
     {
-      "packet_id": "ipk_w011",
-      "severity": 2,
-      "customer_impact": 1,
-      "scope": 2,
-      "novelty": 3,
-      "urgency": 2,
-      "confidence": 0.59,
-      "recommended_action": "create_ticket",
-      "evidence": [
-        "brand detail retry-recovered timeout window remains novel inside the bounded allowlist",
-        "traffic and latency both exceed the candidate threshold without showing severe customer impact",
-        "reviewing this case expands non-compile teacher coverage without widening runtime scope"
-      ]
-    },
-    {
       "packet_id": "ipk_w012",
       "severity": 2,
       "customer_impact": 1,
@@ -178,9 +148,96 @@
         "observed risk stays low but labelled review helps close the current review gap",
         "ticket-level follow-up is sufficient and escalation is not justified"
       ]
+    },
+    {
+      "packet_id": "ipk_w002",
+      "severity": 2,
+      "customer_impact": 1,
+      "scope": 1,
+      "novelty": 2,
+      "urgency": 2,
+      "confidence": 0.61,
+      "recommended_action": "create_ticket",
+      "evidence": [
+        "latency-only window crossed the low-confidence review bar and already has a rule hit",
+        "traffic rose but blast radius stayed bounded to the current pilot lane",
+        "historical brand/detail style cases usually create tickets rather than pages when customer impact is limited"
+      ]
+    },
+    {
+      "packet_id": "ipk_w007",
+      "severity": 2,
+      "customer_impact": 1,
+      "scope": 1,
+      "novelty": 2,
+      "urgency": 2,
+      "confidence": 0.58,
+      "recommended_action": "create_ticket",
+      "evidence": [
+        "brief compile spike recovered quickly but still conflicts with the current low-score rule path",
+        "customer impact stayed bounded and no sustained incident followed",
+        "keeping one low-severity rule-conflict sample improves calibration coverage"
+      ]
+    },
+    {
+      "packet_id": "ipk_w001",
+      "severity": 4,
+      "customer_impact": 3,
+      "scope": 2,
+      "novelty": 3,
+      "urgency": 4,
+      "confidence": 0.78,
+      "recommended_action": "page_owner",
+      "evidence": [
+        "rule-hit compile failure still shows severe error and trace ratios despite bounded scope",
+        "recent deploy plus repeated rpc code=500 pattern make this packet useful as a reviewed severe anchor",
+        "human-confirmed outcome already shows incident impact so reviewed judgement should be retained for calibration"
+      ]
+    },
+    {
+      "packet_id": "ipk_w009",
+      "severity": 4,
+      "customer_impact": 3,
+      "scope": 2,
+      "novelty": 3,
+      "urgency": 4,
+      "confidence": 0.72,
+      "recommended_action": "page_owner",
+      "evidence": [
+        "later compile window re-confirms severe rpc code=500 behavior with high trace error ratio",
+        "reviewing the second rule-hit severe packet improves severe-class teacher coverage without widening scope",
+        "bounded runtime still shows incident-level impact and deserves retained reviewed provenance"
+      ]
+    },
+    {
+      "packet_id": "ipk_w005",
+      "severity": 1,
+      "customer_impact": 1,
+      "scope": 1,
+      "novelty": 1,
+      "urgency": 1,
+      "confidence": 0.64,
+      "recommended_action": "observe",
+      "evidence": [
+        "queue-depth increase resolved without sustained errors or customer impact",
+        "bounded coverage backfill keeps one low-risk packet in the reviewed lane for calibration balance",
+        "human outcome already marks this packet as non-incident and low priority"
+      ]
     }
   ],
   "owner_repo_routing_hints": [
+    {
+      "packet_id": "ipk_w001",
+      "owner": "growth-campaign-oncall",
+      "repos": [
+        "g-crm-campaign",
+        "ad-compiler"
+      ],
+      "similar_incidents": [
+        "INC-1422",
+        "INC-1198"
+      ]
+    },
     {
       "packet_id": "ipk_w004",
       "owner": "growth-campaign-oncall",
@@ -204,22 +261,10 @@
         "INC-1422",
         "INC-1198"
       ]
-    },
-    {
-      "packet_id": "ipk_w001",
-      "owner": "growth-campaign-oncall",
-      "repos": [
-        "g-crm-campaign",
-        "ad-compiler"
-      ],
-      "similar_incidents": [
-        "INC-1422",
-        "INC-1198"
-      ]
     }
   ],
   "data_freshness": {
-    "generated_at": "2026-04-17T01:56:35Z",
+    "generated_at": "2026-04-17T02:43:33Z",
     "dataset_count": 9,
     "derived_artifact_count": 17
   },
@@ -241,8 +286,8 @@
     ]
   },
   "teacher_queue": {
-    "selected_count": 7,
-    "reviewed_count": 7,
+    "selected_count": 10,
+    "reviewed_count": 10,
     "fallback_count": 0,
     "pending_count": 0
   }

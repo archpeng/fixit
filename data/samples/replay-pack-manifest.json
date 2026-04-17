@@ -113,14 +113,14 @@
       "name": "historical_incidents",
       "output": "data/eval/replay/historical_incidents.jsonl",
       "output_row_count": 7,
-      "output_sha256": "21b7bc79a9859be3496e8561a47f03d962cd1461d171f6cf489d674e2081c9a1",
+      "output_sha256": "776d81c8c2ba2a40ce3b01041599b8de840d4db8d9cfa9bec2947c8264c63c0f",
       "sources": [
         {
           "path": "data/eval/historical_incidents.jsonl",
           "class": "retained_fixture",
           "row_count": 4,
-          "sha256": "c45755ddb315cb19014f61ac07d19ced10c81300a97b65c03a154c2a047fb9e7",
-          "freshness": "2026-04-17T01:56:08.279221+00:00"
+          "sha256": "862dc68f69427d7b513e07d4fb515aceec1e78915fad95b20401d7a694958c55",
+          "freshness": "2026-04-17T02:40:19.323785+00:00"
         },
         {
           "path": "data/eval/fixtures/historical_incidents.retained.jsonl",
@@ -134,15 +134,15 @@
     {
       "name": "training_examples",
       "output": "data/eval/replay/training_examples.jsonl",
-      "output_row_count": 17,
-      "output_sha256": "87c9a98c9cade652089ea2dd37dcf11cdbf0a2855019cae027aabb140879f579",
+      "output_row_count": 20,
+      "output_sha256": "1752d1b58485e2bc6d7772a9927090b8b8ad7428a9875328539b88b9b9faf0d5",
       "sources": [
         {
           "path": "data/eval/training_examples.jsonl",
           "class": "retained_fixture",
-          "row_count": 13,
-          "sha256": "ba6dbdb3dbb61f63e9b911c650daad21f5763d87c043cf9548c901a0d2b43b3a",
-          "freshness": "2026-04-17T01:56:08.279221+00:00"
+          "row_count": 16,
+          "sha256": "06b9d0f2fe4c12882f5fc941d6f16640b5140a6ac32005dcb2cf66c3984fb5ac",
+          "freshness": "2026-04-17T02:40:19.323785+00:00"
         },
         {
           "path": "data/eval/fixtures/training_examples.retained.jsonl",
@@ -156,15 +156,15 @@
     {
       "name": "outcomes",
       "output": "data/eval/replay/outcomes.jsonl",
-      "output_row_count": 13,
-      "output_sha256": "b1a9d4d510d51b2f2be05783cfe1ca1e7adbd7dbaaa127438d4ad9dd124415c5",
+      "output_row_count": 14,
+      "output_sha256": "f2d30f6486badae0d5e2166cbe713ab9e6e5a438a79a9a5ba135cab7ae42c609",
       "sources": [
         {
           "path": "data/eval/outcomes.jsonl",
           "class": "retained_fixture",
-          "row_count": 9,
-          "sha256": "e2d9dedd176c3eeecc7d3fe76c9d4ac51d6abf46735e0c84e14cf50f96c1fceb",
-          "freshness": "2026-04-17T01:56:08.279221+00:00"
+          "row_count": 10,
+          "sha256": "d9f3ab14b1a2445010eceec3c1e1b24860cb373ade9e55dee3310383344a052b",
+          "freshness": "2026-04-17T02:40:19.323785+00:00"
         },
         {
           "path": "data/eval/fixtures/outcomes.retained.jsonl",
@@ -178,15 +178,15 @@
     {
       "name": "manual_teacher_judgements",
       "output": "data/eval/replay/manual_teacher_judgements.jsonl",
-      "output_row_count": 7,
-      "output_sha256": "cdb4627eb2dc67d1f5611c38125855c2cd50eee7fe15cde6328939756cfa8062",
+      "output_row_count": 10,
+      "output_sha256": "27cc9f285a5b74aa6f9ad9c1c3b487d07f28097694984b4109fd2fbf2781caa0",
       "sources": [
         {
           "path": "data/eval/manual_teacher_judgements.jsonl",
           "class": "retained_fixture",
-          "row_count": 7,
-          "sha256": "cdb4627eb2dc67d1f5611c38125855c2cd50eee7fe15cde6328939756cfa8062",
-          "freshness": "2026-04-17T01:56:08.279221+00:00"
+          "row_count": 10,
+          "sha256": "27cc9f285a5b74aa6f9ad9c1c3b487d07f28097694984b4109fd2fbf2781caa0",
+          "freshness": "2026-04-17T02:40:19.323785+00:00"
         }
       ]
     }
@@ -197,119 +197,119 @@
       "class": "derived_artifact",
       "exists": true,
       "sha256": "6e2d620bc3a9e8dd8285e418a0c1d99defac9ac7dc3328e5f494422eb6c45660",
-      "freshness": "2026-04-17T01:56:34.802897+00:00"
+      "freshness": "2026-04-17T02:43:33.238613+00:00"
     },
     {
       "path": "data/samples/incident-packets.jsonl",
       "class": "derived_artifact",
       "exists": true,
       "sha256": "3ae49f7d8355bc18531801d176c67c58f6f9d6d6c86b285f7b450a940c4b81f4",
-      "freshness": "2026-04-17T01:56:34.954422+00:00"
+      "freshness": "2026-04-17T02:43:33.367818+00:00"
     },
     {
       "path": "data/samples/retrieval-results.jsonl",
       "class": "derived_artifact",
       "exists": true,
       "sha256": "6673efeb32d51b75eb9ba97db9049d2aab79082cadced7d20ad8915e9a48dcb9",
-      "freshness": "2026-04-17T01:56:35.013477+00:00"
+      "freshness": "2026-04-17T02:43:33.457886+00:00"
     },
     {
       "path": "data/eval/student-scores.jsonl",
       "class": "derived_artifact",
       "exists": true,
-      "sha256": "494288b071f0ea715c6c976fb1dd1001348b27b0b4eb1d0fd63f266a395c90ff",
-      "freshness": "2026-04-17T01:56:35.055342+00:00"
+      "sha256": "0241b4e002352812ae51498e4440764e9a980cbd6a6aa162f13e3d63b709e5c2",
+      "freshness": "2026-04-17T02:43:33.501018+00:00"
     },
     {
       "path": "data/eval/teacher-judgements.jsonl",
       "class": "derived_artifact",
       "exists": true,
-      "sha256": "e2ecc34cd731036c5afff09f7b4315250d95f73c83c9815cab3a044494800c66",
-      "freshness": "2026-04-17T01:56:35.149354+00:00"
+      "sha256": "4c54b5c14a9953ebf93cf4ca15c3b3b6b1639126c303cbe6e6e15698491713e3",
+      "freshness": "2026-04-17T02:43:33.559473+00:00"
     },
     {
       "path": "data/eval/triage-decisions.jsonl",
       "class": "derived_artifact",
       "exists": true,
-      "sha256": "8e92b1905c144334b87be7850ce149899040db48c2722538ddc2be0b54fa9854",
-      "freshness": "2026-04-17T01:56:35.222069+00:00"
+      "sha256": "4f5afde340de5d1d410af1304017f8390c5263088f1bf1ee2871390bcc7aca9e",
+      "freshness": "2026-04-17T02:43:33.616913+00:00"
     },
     {
       "path": "data/eval/metrics-summary.json",
       "class": "derived_artifact",
       "exists": true,
-      "sha256": "0539e868613f64cd7a6fee889384ae3d708c2c0abd25458d04c49da54d83133f",
-      "freshness": "2026-04-17T01:56:35.222162+00:00"
+      "sha256": "c3364a5fad81a7106bf81ec42778ec2fe073ea441c85375b924d3dbc1680573d",
+      "freshness": "2026-04-17T02:43:33.617009+00:00"
     },
     {
       "path": "data/reports/daily-shadow-report.json",
       "class": "derived_artifact",
       "exists": true,
-      "sha256": "24b97f4178af722fe239a9ed8ae359321829774023060fdcb3ac80b60e57f1f5",
-      "freshness": "2026-04-17T01:56:35.349305+00:00"
+      "sha256": "ba54f957bc8b618177255c17f0208a8c3a918de5a0bcee8c829632727a2a6114",
+      "freshness": "2026-04-17T02:43:33.756654+00:00"
     },
     {
       "path": "data/reports/daily-shadow-report.md",
       "class": "derived_artifact",
       "exists": true,
-      "sha256": "40761c6a7b37d185d929810fde3c05d972ff1fcfce34ce7217c48271639cdb89",
-      "freshness": "2026-04-17T01:56:35.349402+00:00"
+      "sha256": "22955b590594dd5d9cee52e5c0ce1142380aa742eae044de37593a7a4a1b758f",
+      "freshness": "2026-04-17T02:43:33.756760+00:00"
     },
     {
       "path": "data/eval/retrieval-index.json",
       "class": "derived_artifact",
       "exists": true,
-      "sha256": "3123b8e7e2ef63df23bb4b9630087c5a9740c4715d89e2c88a139694c16abab5",
-      "freshness": "2026-04-17T01:56:35.013066+00:00"
+      "sha256": "6124b1393e1cfed237b8cd58e3f07ccc28f0683f6f1d714e112dc51cd8892925",
+      "freshness": "2026-04-17T02:43:33.457490+00:00"
     },
     {
       "path": "data/eval/label-ledger.json",
       "class": "derived_artifact",
       "exists": true,
-      "sha256": "7ae1205caaf9352bfde337f73cdde64a3c74cfbf9233c0ed2223ae04d0efabf9",
-      "freshness": "2026-04-17T01:56:35.105783+00:00"
+      "sha256": "09ae98d45e2ea2b4ead096cced475c6712a4182efd44d68c1b3fb1bc7f201e06",
+      "freshness": "2026-04-17T02:43:33.531582+00:00"
     },
     {
       "path": "data/eval/calibration-report.json",
       "class": "derived_artifact",
       "exists": true,
-      "sha256": "d801c29c6775971e2432e1cea344f5be9487b23f73fe9d729cc673e1ad1b9001",
-      "freshness": "2026-04-17T01:56:35.255727+00:00"
+      "sha256": "acfa336bb99169274313d05b81b8e30cf42f961f13e62f4d23fa2ba974706aea",
+      "freshness": "2026-04-17T02:43:33.650734+00:00"
     },
     {
       "path": "data/eval/teacher-request-ledger.jsonl",
       "class": "derived_artifact",
       "exists": true,
-      "sha256": "68fd4093def8330f16e738071fb474283023b82ecd760d8d7384fa09707da7ff",
-      "freshness": "2026-04-17T01:56:35.149441+00:00"
+      "sha256": "c55b9f051f40b39ff897a000b118eb6eb1e83131f1336ff8aba3544f898d706f",
+      "freshness": "2026-04-17T02:43:33.559576+00:00"
     },
     {
       "path": "data/eval/teacher-review-ledger.jsonl",
       "class": "derived_artifact",
       "exists": true,
-      "sha256": "53a860f554774a3c3a6df72aee88de6ae14a422ee3aa0f86b47498023fecf868",
-      "freshness": "2026-04-17T01:56:35.149489+00:00"
+      "sha256": "3e9dddd71664598e52f212a829f091ef7f97fc82c9dc05fc3068d4cd345c4b20",
+      "freshness": "2026-04-17T02:43:33.559630+00:00"
     },
     {
       "path": "data/eval/teacher-fallback-ledger.jsonl",
       "class": "derived_artifact",
       "exists": true,
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "freshness": "2026-04-17T01:56:35.149489+00:00"
+      "freshness": "2026-04-17T02:43:33.559630+00:00"
     },
     {
       "path": "data/eval/enrichment-usage.json",
       "class": "derived_artifact",
       "exists": true,
       "sha256": "c1d47dadaaf5be7e3527784247a738d46544ad37ead5f8d133c357ad6b6122a3",
-      "freshness": "2026-04-17T01:56:34.952746+00:00"
+      "freshness": "2026-04-17T02:43:33.366096+00:00"
     },
     {
       "path": "data/eval/control-plane-live-readback.json",
       "class": "derived_artifact",
       "exists": true,
       "sha256": "65a960b69acded1c2d6495c01aa7166dbf469cf732f0b189afacacf9c0e863c7",
-      "freshness": "2026-04-17T01:56:34.878057+00:00"
+      "freshness": "2026-04-17T02:43:33.306860+00:00"
     }
   ]
 }

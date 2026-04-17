@@ -380,7 +380,10 @@ def build_volume_capacity(root: Path | str) -> dict[str, Any]:
     visible_maximum_reviewed_ceiling = current_reviewed_count + visible_unreviewed_remainder
     remaining_to_phase2_target = max(PHASE2_TARGETS["teacher_reviewed_count"] - current_reviewed_count, 0)
 
-    if visible_maximum_reviewed_ceiling < PHASE2_TARGETS["teacher_reviewed_count"]:
+    if current_reviewed_count >= PHASE2_TARGETS["teacher_reviewed_count"]:
+        next_slice = "DV2.S1_NEXT_DISTINCT_DATE_SCHEMA_PROGRESS_CHECKPOINT"
+        routing_reason = "reviewed-volume target is already met within the current bounded packet pool"
+    elif visible_maximum_reviewed_ceiling < PHASE2_TARGETS["teacher_reviewed_count"]:
         next_slice = "RW2A.S1_BOUNDED_PACKET_SUPPLY_EXPANSION_TO_CLEAR_VOLUME_GATE"
         routing_reason = "current bounded packet supply cannot clear reviewed-volume target"
     else:

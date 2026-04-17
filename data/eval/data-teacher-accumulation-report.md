@@ -11,13 +11,13 @@
 - pilot service count: `2`
 - coverage services: `['g-crm-campaign', 'prod-hq-bff-service']`
 - replay dataset count: `9`
-- replay output row total: `82`
-- teacher request count: `7`
-- teacher reviewed count: `7`
+- replay output row total: `89`
+- teacher request count: `10`
+- teacher reviewed count: `10`
 - teacher fallback count: `0`
 - teacher fallback ratio: `0.0`
 - queue summary consistent: `True`
-- label sources: `{'human_outcome': 11, 'production_outcome': 3, 'teacher_rubric': 1, 'rule': 2}`
+- label sources: `{'human_outcome': 14, 'production_outcome': 3, 'teacher_rubric': 1, 'rule': 2}`
 - schema stability days: `0`
 - severe recall: `1.0`
 - top-K precision: `1.0`
@@ -26,7 +26,7 @@
 - `DW1.S1_MULTI_PILOT_REPLAY_COVERAGE_EXPANSION` :: expand bounded replay evidence beyond the single current pilot
   - pilot service count `2` -> `2` (gap `0`)
 - `DW2.S1_TEACHER_REVIEW_BATCH_AND_LABEL_SOURCE_EXPANSION` :: grow reviewed teacher volume and keep label-source mix moving with provenance
-  - teacher reviewed count `7` -> `10` (gap `3`)
+  - teacher reviewed count `10` -> `10` (gap `0`)
   - teacher fallback ratio `0.0` <= `0.2` (gap `0.0`)
   - teacher rubric label growth needed: `True` from current `1`
 - `DW3.S1_SCHEMA_STABILITY_HISTORY_AND_PHASE2_REFRESH` :: track schema stability over time and re-evaluate phase-2 readiness with refreshed evidence
@@ -34,7 +34,7 @@
   - readiness refresh preconditions: `['multi-pilot replay evidence exceeds 1 bounded pilot', 'reviewed teacher volume materially exceeds predecessor baseline', 'schema fingerprint history has at least one persisted checkpoint']`
 
 ## Suggested Execution Order
-- recommended next slice: `DW2.S1_TEACHER_REVIEW_BATCH_AND_LABEL_SOURCE_EXPANSION`
+- recommended next slice: `DW3.S1_SCHEMA_STABILITY_HISTORY_AND_PHASE2_REFRESH`
 - `DW1.S1_MULTI_PILOT_REPLAY_COVERAGE_EXPANSION`
 - `DW2.S1_TEACHER_REVIEW_BATCH_AND_LABEL_SOURCE_EXPANSION`
 - `DW3.S1_SCHEMA_STABILITY_HISTORY_AND_PHASE2_REFRESH`
